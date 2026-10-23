@@ -23,8 +23,10 @@ export class Scene {
   private w: number;
   private h: number;
   private lastT = 0;
+  private style: Style;
 
-  constructor(private app: Application, private style: Style) {
+  constructor(app: Application, style: Style) {
+    this.style = style;
     app.stage.addChild(this.notesLayer, this.keysLayer, this.hitLine);
 
     // Una sola textura de rectángulo redondeado, estirable sin deformar esquinas

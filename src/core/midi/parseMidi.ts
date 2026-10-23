@@ -20,7 +20,7 @@ export async function parseMidi(file: File): Promise<Song> {
   for (const n of notes) {
     lowest = Math.min(lowest, n.midi);
     highest = Math.max(highest, n.midi);
-    duration = Math.max(duration, n.start + n.duration);
+    duration = Math.max(duration, n.start + n.duration); //util para comprar la ultima nota y su duracion, creo
     maxNoteDuration = Math.max(maxNoteDuration, n.duration);
   }
   return { notes, duration, lowest, highest, maxNoteDuration };
