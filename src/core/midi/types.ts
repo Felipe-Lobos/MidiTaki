@@ -1,8 +1,9 @@
 export interface Note {
-  midi: number;     // 0-127 (60 = Do central)
-  start: number;    // segundos
-  duration: number; // segundos
-  velocity: number; // 0-1
+  midi: number;          // 0-127 (60 = Do central)
+  start: number;         // segundos
+  duration: number;      // segundos escritos en el MIDI  → lo que se DIBUJA
+  soundDuration: number; // segundos con pedal sustain     → lo que SUENA
+  velocity: number;      // 0-1
 }
 
 export interface Song {

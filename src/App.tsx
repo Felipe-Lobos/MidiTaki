@@ -1,25 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { PreviewCanvas } from './ui/canvas/PreviewCanvas';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
+import { transport } from './playback/Transport';
+
+const STATUS_TEXT = {
+  idle: '',
+  loading: 'Cargando piano…',
+  ready: 'Piano listo',
+  fallback: 'Sin muestras de piano: sonido de prueba',
+} as const;
 
 export default function App() {
   const { song, fileName, error, rangeKey, loadFile, setRangeKey } = useSongStore();
-  const { time, setTime } = usePlaybackStore();
-  const [playing, setPlaying] = useState(false);
+  const { time, playing, audioStatus } = usePlaybackStore();
 
-  // Reproducción TEMPORAL solo visual (sin audio). En el hito 3 la reemplaza el reloj del audio.
+  // Cuando cambia la canción, el transport la recibe y vuelve a 0
   useEffect(() => {
-    if (!playing || !song) return;
-    const origin = performance.now() - usePlaybackStore.getState().time * 1000;
-    let raf = requestAnimationFrame(function loop() {
-      const t = (performance.now() - origin) / 1000;
-      if (t >= song.duration) { setTime(song.duration); setPlaying(false); return; }
-      setTime(t);
-      raf = requestAnimationFrame(loop);
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [playing, song, setTime]);
+    if (song) transport.setSong(song);
+  }, [song]);
 
   return (
     <div className="app">
@@ -27,9 +26,15 @@ export default function App() {
         <label className="btn">
           Cargar MIDI
           <input type="file" accept=".mid,.midi" hidden
-            onChange={(e) => e.target.files?.[0] && loadFile(e.target.files[0])} />
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              transport.init(); // crea el AudioContext dentro de un gesto del usuario
+              loadFile(file);
+            }} />
         </label>
         <span className="muted">{error ?? (fileName || 'Ningún archivo')}</span>
+        <span className="muted">{STATUS_TEXT[audioStatus]}</span>
         <select value={rangeKey} onChange={(e) => setRangeKey(e.target.value)}>
           <option value="auto">Teclado: automático</option>
           <option value="88">88 teclas</option>
@@ -42,12 +47,13 @@ export default function App() {
       <PreviewCanvas />
 
       <footer className="transport">
-        <button className="btn" disabled={!song} onClick={() => setPlaying((p) => !p)}>
+        <button className="btn" disabled={!song || audioStatus === 'loading'}
+          onClick={() => transport.toggle()}>
           {playing ? 'Pausa' : 'Play'}
         </button>
         <input type="range" min={0} max={song?.duration ?? 1} step={0.01}
           value={time} disabled={!song}
-          onChange={(e) => { setPlaying(false); setTime(Number(e.target.value)); }} />
+          onChange={(e) => transport.seek(Number(e.target.value))} />
         <span className="muted time">{time.toFixed(2)} / {(song?.duration ?? 0).toFixed(2)} s</span>
       </footer>
     </div>
