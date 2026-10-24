@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { PreviewCanvas } from './ui/canvas/PreviewCanvas';
+import { SidePanel } from './ui/panels/SidePanel';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
 import { transport } from './playback/Transport';
@@ -45,7 +46,10 @@ export default function App() {
         </select>
       </header>
 
-      <PreviewCanvas />
+      <div className="main">
+        <PreviewCanvas />
+        <SidePanel />
+      </div>
 
       <footer className="transport">
         <button className="btn" disabled={!song || audioStatus === 'loading'}

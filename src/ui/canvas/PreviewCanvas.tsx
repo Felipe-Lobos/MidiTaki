@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { Application } from 'pixi.js';
 import { Scene } from '../../render/Scene';
-import { defaultStyle } from '../../core/style/schema';
 import { useSongStore } from '../../store/songStore';
 import { usePlaybackStore } from '../../store/playbackStore';
+import { useStyleStore } from '../../store/styleStore';
 
 export function PreviewCanvas() {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -18,18 +18,17 @@ export function PreviewCanvas() {
     app
       .init({
         resizeTo: host,
-        background: defaultStyle.background,
+        background: useStyleStore.getState().style.background,
         antialias: true,
         resolution: window.devicePixelRatio,
         autoDensity: true,
       })
       .then(() => {
-        // React en desarrollo monta/desmonta dos veces: protegemos ese caso
         if (disposed) { app.destroy(true); return; }
         ready = true;
         host.appendChild(app.canvas);
 
-        const scene = new Scene(app, defaultStyle);
+        const scene = new Scene(app, useStyleStore.getState().style);
         const sync = () => {
           const { song, range } = useSongStore.getState();
           scene.setSong(song, range);
@@ -38,9 +37,11 @@ export function PreviewCanvas() {
         app.renderer.on('resize', (w: number, h: number) => scene.resize(w, h));
         sync();
 
-        // Pixi se actualiza directo desde los stores, sin re-renderizar React
         unsubs.push(useSongStore.subscribe(sync));
         unsubs.push(usePlaybackStore.subscribe((s) => scene.renderFrame(s.time)));
+        unsubs.push(useStyleStore.subscribe((s, prev) => {
+          if (s.style !== prev.style) scene.setStyle(s.style);
+        }));
       });
 
     return () => {
