@@ -32,7 +32,12 @@ export class PianoSampler {
         this.buffers.set(m, await ctx.decodeAudioData(await res.arrayBuffer()));
       })());
     }
-    await Promise.allSettled(jobs);
+    const results = await Promise.allSettled(jobs);
+    const failed = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected');
+    if (failed.length === jobs.length)
+      console.warn('[piano] No se cargó ninguna muestra. ¿Existe public/samples/piano/*.ogg? (node scripts/copy-samples.mjs)', failed[0].reason);
+    else if (failed.length > 0)
+      console.warn(`[piano] ${failed.length}/${jobs.length} muestras fallaron`, failed[0].reason);
     this.sampleMidis = [...this.buffers.keys()].sort((a, b) => a - b);
     this.nearestCache.clear();
     if (this.buffers.size > 0 && this.buffers.size < 30)

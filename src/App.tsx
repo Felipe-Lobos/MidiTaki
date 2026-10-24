@@ -9,6 +9,7 @@ const STATUS_TEXT = {
   loading: 'Cargando piano…',
   ready: 'Piano listo',
   fallback: 'Sin muestras de piano: sonido de prueba',
+  error: 'Error de audio: revisa la consola (F12)',
 } as const;
 
 export default function App() {
@@ -17,7 +18,7 @@ export default function App() {
 
   // Cuando cambia la canción, el transport la recibe y vuelve a 0
   useEffect(() => {
-    if (song) transport.setSong(song);
+    if (song) transport.reset();
   }, [song]);
 
   return (
@@ -29,7 +30,7 @@ export default function App() {
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (!file) return;
-              transport.init(); // crea el AudioContext dentro de un gesto del usuario
+              transport.init().catch(() => {}); // crea el AudioContext dentro de un gesto del usuario
               loadFile(file);
             }} />
         </label>

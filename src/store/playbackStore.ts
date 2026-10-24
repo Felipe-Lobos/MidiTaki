@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type AudioStatus = 'idle' | 'loading' | 'ready' | 'fallback';
+export type AudioStatus = 'idle' | 'loading' | 'ready' | 'fallback' | 'error';
 
 interface PlaybackState {
   time: number; // segundos. Única fuente de verdad del "ahora"

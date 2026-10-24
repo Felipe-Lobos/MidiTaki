@@ -1,6 +1,7 @@
 import { PianoSampler, createMasterBus, type Voice } from '../audio/pianoSampler';
 import type { Song } from '../core/midi/types';
 import { usePlaybackStore } from '../store/playbackStore';
+import { useSongStore } from '../store/songStore';
 
 const LOOKAHEAD = 1.2;   // s: cuánto adelanto programamos notas
 const TICK_MS = 50;      // cada cuánto revisamos si hay que programar más
@@ -19,7 +20,6 @@ class Transport {
   private sampler = new PianoSampler();
   private initPromise: Promise<void> | null = null;
 
-  private song: Song | null = null;
   private playing = false;
   private anchorCtx = 0;   // instante del AudioContext donde empieza anchorSong
   private anchorSong = 0;  // segundo de la canción en ese instante
@@ -28,8 +28,21 @@ class Transport {
   private raf = 0;
   private voices = new Set<Voice>();
 
+  /** La canción se lee SIEMPRE del store: no hay copia que desincronizar. */
+  private get song(): Song | null {
+    return useSongStore.getState().song;
+  }
+
   /** Llamar tras un gesto del usuario (p. ej. al elegir archivo). */
-  init() { return (this.initPromise ??= this.doInit()); }
+  init(): Promise<void> {
+    return (this.initPromise ??= this.doInit().catch((e) => {
+      console.error('[Transport] init falló:', e);
+      this.initPromise = null;
+      this.ctx = null;
+      store().setAudioStatus('error');
+      throw e;
+    }));
+  }
 
   private async doInit() {
     const ctx = new AudioContext({ latencyHint: 'interactive' });
@@ -40,34 +53,49 @@ class Transport {
     store().setAudioStatus(ok ? 'ready' : 'fallback');
   }
 
-  setSong(song: Song) {
+  /** Se llama al cargar una canción nueva: detiene y vuelve al inicio. */
+  reset() {
     this.pause();
-    this.song = song;
     this.seek(0);
   }
 
   async play() {
-    if (!this.song || this.playing) return;
-    await this.init();
-    const ctx = this.ctx!;
-    await ctx.resume();
-    if (this.playing) return;
+    const song = this.song;
+    if (!song || this.playing) return;
+    try {
+      await this.init();
+      const ctx = this.ctx!;
+      if (ctx.state !== 'running') {
+        await Promise.race([ctx.resume(), new Promise((r) => setTimeout(r, 2000))]);
+      }
+      if (ctx.state !== 'running') {
+        throw new Error(`AudioContext en estado "${ctx.state}": el navegador bloqueó el audio.`);
+      }
+      if (this.playing) return;
 
-    const dur = this.song.duration;
-    const t0 = store().time >= dur - 0.01 ? 0 : store().time;
-    this.playing = true;
-    store().setPlaying(true);
-    this.startAt(t0);
-    store().setTime(t0);
+      const dur = song.duration;
+      const t0 = store().time >= dur - 0.01 ? 0 : store().time;
+      this.playing = true;
+      store().setPlaying(true);
+      this.startAt(t0);
+      store().setTime(t0);
 
-    this.timer = window.setInterval(() => this.schedule(), TICK_MS);
-    const loop = () => {
-      const t = this.songTime();
-      store().setTime(Math.min(t, dur));
-      if (t >= dur + END_TAIL) { this.pause(); return; }
+      this.timer = window.setInterval(() => this.schedule(), TICK_MS);
+      const loop = () => {
+        const t = this.songTime();
+        store().setTime(Math.min(t, dur));
+        if (t >= dur + END_TAIL) { this.pause(); return; }
+        this.raf = requestAnimationFrame(loop);
+      };
       this.raf = requestAnimationFrame(loop);
-    };
-    this.raf = requestAnimationFrame(loop);
+    } catch (e) {
+      console.error('[Transport] play falló:', e);
+      this.playing = false;
+      window.clearInterval(this.timer);
+      cancelAnimationFrame(this.raf);
+      store().setPlaying(false);
+      store().setAudioStatus('error');
+    }
   }
 
   pause() {
@@ -110,8 +138,8 @@ class Transport {
 
   /** Programa las notas que caen dentro de la ventana de adelanto. */
   private schedule() {
-    if (!this.playing) return;
-    const ctx = this.ctx!, notes = this.song!.notes;
+    if (!this.playing || !this.song) return;
+    const ctx = this.ctx!, notes = this.song.notes;
     const songHorizon = this.anchorSong + (ctx.currentTime + LOOKAHEAD - this.anchorCtx);
     while (this.cursor < notes.length && notes[this.cursor].start <= songHorizon) {
       const n = notes[this.cursor++];
