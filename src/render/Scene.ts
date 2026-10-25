@@ -137,19 +137,15 @@ export class Scene {
     for (const sp of this.haloPool) sp.destroy();
     this.haloPool = [];
     this.haloTex?.destroy(true);
-    const { noteRadius: r, noteFill, outlineWidth: ow, glowRadius } = this.style;
+    const { noteRadius: r, glowRadius } = this.style;
     const pad = Math.max(2, Math.round(glowRadius));
     const s = this.inset * 4;
     const N = 10, a = 0.1;
     const g = new Graphics();
     for (let k = N; k >= 1; k--) {
       const d = (pad * k) / N;
-      if (noteFill === 'outline') {
-        g.roundRect(pad + ow / 2, pad + ow / 2, s - ow, s - ow, Math.max(r - ow / 2, 0))
-          .stroke({ width: ow + 2 * d, color: 0xffffff, alpha: a, join: 'round' });
-      } else {
-        g.roundRect(pad - d, pad - d, s + 2 * d, s + 2 * d, r + d).fill({ color: 0xffffff, alpha: a });
-      }
+      g.roundRect(pad - d, pad - d, s + 2 * d, s + 2 * d, r + d).fill({ color: 0xffffff, alpha: a });
+      g.roundRect(pad + 0.5, pad + 0.5, s - 1, s - 1, Math.max(r - 0.5, 0)).cut(); // el interior de la nota no brilla
     }
     this.haloTex = this.app.renderer.generateTexture(g);
     g.destroy();
@@ -159,6 +155,11 @@ export class Scene {
   private rebuildKeys() {
     this.keysLayer.removeChildren().forEach((c) => c.destroy());
     this.keys.clear();
+    // Base oscura del teclado: se ve en la franja que deja libre la tecla al hundirse
+    const bed = new Graphics()
+      .rect(0, this.hitY, this.w, this.h - this.hitY)
+      .fill(lerpColor(hexToNum(this.style.background), 0x000000, 0.6));
+    this.keysLayer.addChild(bed);
     const layout = buildKeyboardLayout(this.range, this.w);
     for (const rect of [...layout.filter((k) => !k.black), ...layout.filter((k) => k.black)]) {
       const g = new Graphics();
@@ -175,7 +176,7 @@ export class Scene {
   private drawKey(k: KeyView) {
     const s = this.style, rel = s.relief;
     const { x, w, black } = k.rect;
-    const y = this.hitY, keyH = this.h - y;
+    const y = this.hitY, keyH = this.h - y - s.keyPress; // deja margen abajo para hundirse
     const pressed = k.pressTint !== null;
     const color = k.pressTint ?? hexToNum(black ? s.blackKey : s.whiteKey);
     const top = y + (pressed ? s.keyPress : 0); // la tecla pulsada se desplaza hacia abajo
