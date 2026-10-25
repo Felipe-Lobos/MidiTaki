@@ -1,9 +1,13 @@
 import { defaultStyle, type Style } from './schema';
 
 const HEX = /^#[0-9a-f]{6}$/i;
+const ENUMS: Partial<Record<keyof Style, string[]>> = {
+  colorMode: ['solid', 'pitch'], noteFill: ['solid', 'outline'],
+};
 const LIMITS: Partial<Record<keyof Style, [number, number]>> = {
   noteRadius: [0, 24], noteGap: [0, 8], noteOpacity: [0.2, 1],
-  keyboardRatio: [0.08, 0.3], fallSeconds: [1, 8],
+  keyboardRatio: [0.08, 0.3], fallSeconds: [1, 8], keyPress: [0, 12],
+  outlineWidth: [1, 8], relief: [0, 1], glowStrength: [0, 3], glowRadius: [2, 24],
 };
 
 /** Convierte CUALQUIER cosa en un Style válido (campos que falten o sean inválidos → por defecto). */
@@ -13,7 +17,7 @@ export function sanitizeStyle(raw: unknown): Style {
   for (const key of Object.keys(defaultStyle) as (keyof Style)[]) {
     const def = defaultStyle[key];
     const v = src[key];
-    if (key === 'colorMode') { if (v === 'solid' || v === 'pitch') out[key] = v; }
+    if (ENUMS[key]) { if (ENUMS[key]!.includes(v as string)) out[key] = v; }
     else if (typeof def === 'string') { if (typeof v === 'string' && HEX.test(v)) out[key] = v; }
     else if (typeof def === 'number') {
       if (typeof v === 'number' && isFinite(v)) {

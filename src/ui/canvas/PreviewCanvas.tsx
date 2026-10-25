@@ -4,6 +4,7 @@ import { Scene } from '../../render/Scene';
 import { useSongStore } from '../../store/songStore';
 import { usePlaybackStore } from '../../store/playbackStore';
 import { useStyleStore } from '../../store/styleStore';
+import { useSettingsStore } from '../../store/settingsStore';
 
 export function PreviewCanvas() {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -29,6 +30,7 @@ export function PreviewCanvas() {
         host.appendChild(app.canvas);
 
         const scene = new Scene(app, useStyleStore.getState().style);
+        scene.setEffectsEnabled(useSettingsStore.getState().previewFx);
         const sync = () => {
           const { song, range } = useSongStore.getState();
           scene.setSong(song, range);
@@ -42,6 +44,7 @@ export function PreviewCanvas() {
         unsubs.push(useStyleStore.subscribe((s, prev) => {
           if (s.style !== prev.style) scene.setStyle(s.style);
         }));
+        unsubs.push(useSettingsStore.subscribe((s) => scene.setEffectsEnabled(s.previewFx)));
       });
 
     return () => {

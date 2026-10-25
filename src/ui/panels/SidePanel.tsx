@@ -6,7 +6,7 @@ import { defaultStyle, type BoolKey, type ColorKey, type NumKey } from '../../co
 import { PRESETS } from '../../core/style/presets';
 import { exportPreset, importPreset } from '../../core/style/presetIO';
 
-const TABS = ['Notas', 'Teclado', 'Escena', 'Presets'] as const;
+const TABS = ['Notas', 'Teclado', 'Escena', 'Efectos', 'Presets'] as const;
 type Tab = (typeof TABS)[number];
 
 export function SidePanel() {
@@ -46,14 +46,18 @@ export function SidePanel() {
           {num('noteGap', 'Separación', 0, 8, 1, ' px')}
           {num('noteOpacity', 'Opacidad', 0.2, 1)}
           {bool('velocityOpacity', 'La fuerza (velocity) afecta la opacidad')}
+          <Segmented label="Relleno" value={style.noteFill} onChange={(v) => patch({ noteFill: v })}
+            options={[{ value: 'solid', text: 'Sólido' }, { value: 'outline', text: 'Hueco' }]} />
+          {style.noteFill === 'outline' && num('outlineWidth', 'Grosor del borde', 1, 8, 1, ' px')}
         </>}
 
         {tab === 'Teclado' && <>
           {outside > 0 && <p className="warn">{outside} notas quedan fuera del rango del teclado y no se dibujan.</p>}
           {color('whiteKey', 'Teclas blancas')}
           {color('blackKey', 'Teclas negras')}
-          {color('pressedColor', 'Tecla pulsada')}
+          {!style.syncColors && color('pressedColor', 'Tecla pulsada')}
           {num('keyboardRatio', 'Altura del teclado', 0.08, 0.3)}
+          {num('keyPress', 'Profundidad al pulsar', 0, 12, 1, ' px')}
           {bool('showHitLine', 'Línea de impacto')}
           {style.showHitLine && color('hitLineColor', 'Color de la línea')}
         </>}
@@ -61,6 +65,16 @@ export function SidePanel() {
         {tab === 'Escena' && <>
           {color('background', 'Fondo')}
           {num('fallSeconds', 'Segundos visibles (menos = más rápido)', 1, 8, 0.1, ' s')}
+        </>}
+
+        {tab === 'Efectos' && <>
+          {bool('glow', 'Brillo neón (glow)')}
+          {bool('syncColors', 'Sincronizar tecla y brillo con el color de la nota')}
+          {style.glow && !style.syncColors && color('glowColor', 'Color del brillo')}
+          {style.glow && num('glowStrength', 'Intensidad del brillo', 0, 3)}
+          {style.glow && num('glowRadius', 'Radio del brillo', 2, 24, 1, ' px')}
+          {num('relief', 'Relieve 2.5D (notas y teclas)', 0, 1)}
+          <p className="muted">El interruptor «Efectos» de la barra superior solo afecta a la vista previa; el video exportado siempre usa calidad completa.</p>
         </>}
 
         {tab === 'Presets' && <>

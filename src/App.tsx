@@ -3,6 +3,7 @@ import { PreviewCanvas } from './ui/canvas/PreviewCanvas';
 import { SidePanel } from './ui/panels/SidePanel';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
+import { useSettingsStore } from './store/settingsStore';
 import { transport } from './playback/Transport';
 
 const STATUS_TEXT = {
@@ -16,6 +17,7 @@ const STATUS_TEXT = {
 export default function App() {
   const { song, fileName, error, rangeKey, loadFile, setRangeKey } = useSongStore();
   const { time, playing, audioStatus } = usePlaybackStore();
+  const { previewFx, setPreviewFx } = useSettingsStore();
 
   // Cuando cambia la canción, el transport la recibe y vuelve a 0
   useEffect(() => {
@@ -37,6 +39,9 @@ export default function App() {
         </label>
         <span className="muted">{error ?? (fileName || 'Ningún archivo')}</span>
         <span className="muted">{STATUS_TEXT[audioStatus]}</span>
+        <label className="muted" title="Solo afecta a la vista previa, no al video exportado">
+          <input type="checkbox" checked={previewFx} onChange={(e) => setPreviewFx(e.target.checked)} /> Efectos
+        </label>
         <select value={rangeKey} onChange={(e) => setRangeKey(e.target.value)}>
           <option value="auto">Teclado: automático</option>
           <option value="88">88 teclas</option>
