@@ -6,10 +6,12 @@ export interface Voice { stop(when: number): void }
 const NAMES: Record<number, string> = { 0: 'C', 3: 'Ds', 6: 'Fs', 9: 'A' };
 const sampleName = (m: number) => `${NAMES[m % 12]}${Math.floor(m / 12) - 1}`;
 
-/** Salida común: volumen + compresor para que los acordes no saturen. */
-export function createMasterBus(ctx: BaseAudioContext): AudioNode {
+export const MASTER_BASE = 0.8;
+
+/** Salida común: volumen + compresor para que los acordes no saturen. Igual en vivo y offline. */
+export function createMasterBus(ctx: BaseAudioContext, volume = 1): GainNode {
   const gain = ctx.createGain();
-  gain.gain.value = 0.8;
+  gain.gain.value = MASTER_BASE * volume;
   const comp = ctx.createDynamicsCompressor();
   gain.connect(comp);
   comp.connect(ctx.destination);
@@ -20,6 +22,8 @@ export class PianoSampler {
   private buffers = new Map<number, AudioBuffer>();
   private sampleMidis: number[] = [];
   private nearestCache = new Map<number, number>();
+
+  get hasSamples() { return this.buffers.size > 0; }
 
   /** Devuelve true si cargó al menos una muestra. Si no, se usa un sonido de prueba. */
   async load(ctx: BaseAudioContext): Promise<boolean> {
@@ -94,3 +98,6 @@ export class PianoSampler {
     };
   }
 }
+
+/** Una sola instancia: el preview y el export comparten las mismas muestras ya decodificadas. */
+export const pianoSampler = new PianoSampler();

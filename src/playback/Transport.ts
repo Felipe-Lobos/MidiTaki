@@ -1,7 +1,11 @@
-import { PianoSampler, createMasterBus, type Voice } from '../audio/pianoSampler';
+import { MASTER_BASE, createMasterBus, pianoSampler, type Voice } from '../audio/pianoSampler';
 import type { Song } from '../core/midi/types';
 import { usePlaybackStore } from '../store/playbackStore';
 import { useSongStore } from '../store/songStore';
+import { useSettingsStore } from '../store/settingsStore';
+import { useStyleStore } from '../store/styleStore';
+import { useExportStore } from '../store/exportStore';
+import { previewBounds } from '../core/timeline/bounds.ts';
 
 const LOOKAHEAD = 1.2;   // s: cuánto adelanto programamos notas
 const TICK_MS = 50;      // cada cuánto revisamos si hay que programar más
@@ -16,8 +20,8 @@ const store = () => usePlaybackStore.getState();
  */
 class Transport {
   private ctx: AudioContext | null = null;
-  private bus: AudioNode | null = null;
-  private sampler = new PianoSampler();
+  private bus: GainNode | null = null;
+  private sampler = pianoSampler;
   private initPromise: Promise<void> | null = null;
 
   private playing = false;
@@ -27,6 +31,21 @@ class Transport {
   private timer: number | undefined;
   private raf = 0;
   private voices = new Set<Voice>();
+
+  constructor() {
+    // Al activar/desactivar "entrada y cola" en la vista previa, reajusta la posición
+    useSettingsStore.subscribe((s, prev) => {
+      if (s.previewLeadTail !== prev.previewLeadTail && this.song) this.seek(store().time);
+    });
+  }
+
+  /** Límites de tiempo navegables (incluyen entrada/cola si el usuario lo activó). */
+  private get bounds() {
+    const song = this.song;
+    if (!song) return { min: 0, max: 0 };
+    return previewBounds(song, useSettingsStore.getState().previewLeadTail,
+      useStyleStore.getState().style.fallSeconds, useExportStore.getState().tail);
+  }
 
   /** La canción se lee SIEMPRE del store: no hay copia que desincronizar. */
   private get song(): Song | null {
@@ -47,7 +66,10 @@ class Transport {
   private async doInit() {
     const ctx = new AudioContext({ latencyHint: 'interactive' });
     this.ctx = ctx;
-    this.bus = createMasterBus(ctx);
+    this.bus = createMasterBus(ctx, useSettingsStore.getState().volume);
+    useSettingsStore.subscribe((s) => {
+      if (this.bus) this.bus.gain.setTargetAtTime(MASTER_BASE * s.volume, ctx.currentTime, 0.02);
+    });
     store().setAudioStatus('loading');
     const ok = await this.sampler.load(ctx);
     store().setAudioStatus(ok ? 'ready' : 'fallback');
@@ -56,7 +78,7 @@ class Transport {
   /** Se llama al cargar una canción nueva: detiene y vuelve al inicio. */
   reset() {
     this.pause();
-    this.seek(0);
+    this.seek(this.bounds.min);
   }
 
   async play() {
@@ -73,8 +95,8 @@ class Transport {
       }
       if (this.playing) return;
 
-      const dur = song.duration;
-      const t0 = store().time >= dur - 0.01 ? 0 : store().time;
+      const { min, max } = this.bounds;
+      const t0 = store().time >= max - 0.01 ? min : store().time;
       this.playing = true;
       store().setPlaying(true);
       this.startAt(t0);
@@ -83,8 +105,8 @@ class Transport {
       this.timer = window.setInterval(() => this.schedule(), TICK_MS);
       const loop = () => {
         const t = this.songTime();
-        store().setTime(Math.min(t, dur));
-        if (t >= dur + END_TAIL) { this.pause(); return; }
+        store().setTime(Math.min(t, max));
+        if (t >= max + END_TAIL) { this.pause(); return; }
         this.raf = requestAnimationFrame(loop);
       };
       this.raf = requestAnimationFrame(loop);
@@ -100,7 +122,7 @@ class Transport {
 
   pause() {
     if (!this.playing) return;
-    const t = Math.min(this.songTime(), this.song?.duration ?? 0);
+    const t = Math.min(this.songTime(), this.bounds.max);
     this.playing = false;
     window.clearInterval(this.timer);
     cancelAnimationFrame(this.raf);
@@ -113,7 +135,8 @@ class Transport {
   toggle() { return this.playing ? this.pause() : this.play(); }
 
   seek(t: number) {
-    const t2 = Math.min(Math.max(t, 0), this.song?.duration ?? 0);
+    const { min, max } = this.bounds;
+    const t2 = Math.min(Math.max(t, min), max);
     store().setTime(t2);
     if (this.playing) this.startAt(t2);
     else this.anchorSong = t2;

@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { ColorField, Segmented, Slider, Toggle } from '../controls/controls';
 import { useStyleStore } from '../../store/styleStore';
 import { useSongStore } from '../../store/songStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { defaultStyle, type BoolKey, type ColorKey, type NumKey } from '../../core/style/schema';
 import { PRESETS } from '../../core/style/presets';
 import { exportPreset, importPreset } from '../../core/style/presetIO';
 
-const TABS = ['Notas', 'Teclado', 'Escena', 'Efectos', 'Presets'] as const;
+const TABS = ['Notas', 'Teclado', 'Escena', 'Efectos', 'Audio', 'Presets'] as const;
 type Tab = (typeof TABS)[number];
 
 export function SidePanel() {
@@ -14,6 +15,7 @@ export function SidePanel() {
   const [importError, setImportError] = useState<string | null>(null);
   const { style, patch, apply, reset } = useStyleStore();
   const { song, range } = useSongStore();
+  const { volume, setVolume, previewLeadTail, setPreviewLeadTail } = useSettingsStore();
 
   const num = (k: NumKey, label: string, min: number, max: number, step?: number, unit?: string) => (
     <Slider label={label} value={style[k]} def={defaultStyle[k]} min={min} max={max} step={step} unit={unit}
@@ -65,6 +67,7 @@ export function SidePanel() {
         {tab === 'Escena' && <>
           {color('background', 'Fondo')}
           {num('fallSeconds', 'Segundos visibles (menos = más rápido)', 1, 8, 0.1, ' s')}
+          <Toggle label="Mostrar entrada y cola en la vista previa" value={previewLeadTail} onChange={setPreviewLeadTail} />
         </>}
 
         {tab === 'Efectos' && <>
@@ -75,6 +78,11 @@ export function SidePanel() {
           {style.glow && num('glowRadius', 'Radio del brillo', 2, 24, 1, ' px')}
           {num('relief', 'Relieve 2.5D (notas y teclas)', 0, 1)}
           <p className="muted">El interruptor «Efectos» de la barra superior solo afecta a la vista previa; el video exportado siempre usa calidad completa.</p>
+        </>}
+
+        {tab === 'Audio' && <>
+          <Slider label="Volumen general" value={volume} def={1} min={0} max={1.5} step={0.05} onChange={setVolume} />
+          <p className="muted">Afecta a la reproducción y al audio exportado. No se guarda en los presets.</p>
         </>}
 
         {tab === 'Presets' && <>

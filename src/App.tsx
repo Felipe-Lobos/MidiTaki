@@ -5,8 +5,9 @@ import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
 import { useSettingsStore } from './store/settingsStore';
 import { ExportDialog } from './ui/export/ExportDialog';
-import { useExportStore } from './store/exportStore.ts';
+import { useExportStore } from './store/exportStore';
 import { useStyleStore } from './store/styleStore';
+import { previewBounds } from './core/timeline/bounds.ts';
 import { transport } from './playback/Transport';
 
 const STATUS_TEXT = {
@@ -21,6 +22,10 @@ export default function App() {
   const { song, fileName, error, rangeKey, loadFile, setRangeKey } = useSongStore();
   const { time, playing, audioStatus } = usePlaybackStore();
   const { previewFx, setPreviewFx, format, setFormat } = useSettingsStore();
+  const leadTail = useSettingsStore((s) => s.previewLeadTail);
+  const fall = useStyleStore((s) => s.style.fallSeconds);
+  const tail = useExportStore((s) => s.tail);
+  const b = song ? previewBounds(song, leadTail, fall, tail) : { min: 0, max: 1 };
 
   // Cuando cambia la canción, el transport la recibe y vuelve a 0
   useEffect(() => {
@@ -72,10 +77,10 @@ export default function App() {
           onClick={() => transport.toggle()}>
           {playing ? 'Pausa' : 'Play'}
         </button>
-        <input type="range" min={0} max={song?.duration ?? 1} step={0.01}
+        <input type="range" min={b.min} max={b.max} step={0.01}
           value={time} disabled={!song}
           onChange={(e) => transport.seek(Number(e.target.value))} />
-        <span className="muted time">{time.toFixed(2)} / {(song?.duration ?? 0).toFixed(2)} s</span>
+        <span className="muted time">{time.toFixed(2)} / {(song ? b.max : 0).toFixed(2)} s</span>
       </footer>
       <ExportDialog />
     </div>
