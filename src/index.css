@@ -33,3 +33,21 @@ select { background: #2a2a33; color: inherit; border: 0; border-radius: 8px; pad
 .seg button.on { background: #3a3a46; opacity: 1; }
 .presets { display: flex; flex-wrap: wrap; gap: 8px; }
 .warn { margin: 0; padding: 8px 10px; background: #3a2a14; border-radius: 8px; color: #ffcf8a; }
+
+/* ---- Hito 6: formato y exportación ---- */
+.canvas-host { display: flex; align-items: center; justify-content: center; background: #0a0a0c; }
+.canvas-host canvas { box-shadow: 0 0 0 1px #2a2a33; }
+select.inline { margin-left: 0; }
+.btn.primary { background: #2d6df6; }
+.modal-back { position: fixed; inset: 0; background: #000a; display: flex; align-items: center; justify-content: center; z-index: 10; }
+.modal { width: min(520px, 94vw); max-height: 92vh; overflow-y: auto; background: #17171c; border: 1px solid #2a2a33; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.modal h2 { margin: 0; font-size: 18px; }
+.modal p { margin: 0; }
+.seg-row { display: flex; align-items: center; gap: 12px; }
+.seg-row > span:first-child { width: 90px; opacity: .7; }
+.seg-row input[type=number] { width: 70px; background: #2a2a33; color: inherit; border: 0; border-radius: 8px; padding: 6px; font: inherit; }
+.seg button:disabled { opacity: .3; cursor: default; }
+.bar { height: 10px; background: #2a2a33; border-radius: 6px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: #2d6df6; }
+.ok { color: #7ee2a8; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }

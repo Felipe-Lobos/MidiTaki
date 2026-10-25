@@ -4,6 +4,9 @@ import { SidePanel } from './ui/panels/SidePanel';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
 import { useSettingsStore } from './store/settingsStore';
+import { ExportDialog } from './ui/export/ExportDialog';
+import { useExportStore } from './store/exportStore.ts';
+import { useStyleStore } from './store/styleStore';
 import { transport } from './playback/Transport';
 
 const STATUS_TEXT = {
@@ -17,7 +20,7 @@ const STATUS_TEXT = {
 export default function App() {
   const { song, fileName, error, rangeKey, loadFile, setRangeKey } = useSongStore();
   const { time, playing, audioStatus } = usePlaybackStore();
-  const { previewFx, setPreviewFx } = useSettingsStore();
+  const { previewFx, setPreviewFx, format, setFormat } = useSettingsStore();
 
   // Cuando cambia la canción, el transport la recibe y vuelve a 0
   useEffect(() => {
@@ -49,6 +52,14 @@ export default function App() {
           <option value="61">61 teclas</option>
           <option value="49">49 teclas</option>
         </select>
+        <select className="inline" value={format} onChange={(e) => setFormat(e.target.value as 'landscape' | 'portrait')}>
+          <option value="landscape">Horizontal 16:9</option>
+          <option value="portrait">Vertical 9:16</option>
+        </select>
+        <button className="btn primary" disabled={!song} onClick={() => {
+          transport.pause();
+          useExportStore.getState().openDialog(Math.round(useStyleStore.getState().style.fallSeconds * 2) / 2);
+        }}>Exportar</button>
       </header>
 
       <div className="main">
@@ -66,6 +77,7 @@ export default function App() {
           onChange={(e) => transport.seek(Number(e.target.value))} />
         <span className="muted time">{time.toFixed(2)} / {(song?.duration ?? 0).toFixed(2)} s</span>
       </footer>
+      <ExportDialog />
     </div>
   );
 }

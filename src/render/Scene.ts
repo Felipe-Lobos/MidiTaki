@@ -29,6 +29,7 @@ export class Scene {
   private texture!: Texture;
   private haloTex!: Texture;
   private haloPad = 0;
+  private texRes = 1; // resolución con la que se generaron las texturas
 
   private song: Song | null = null;
   private range: KeyRange = { low: 21, high: 108 };
@@ -78,6 +79,7 @@ export class Scene {
   resize(w: number, h: number) {
     this.w = w;
     this.h = h;
+    if (this.app.renderer.resolution !== this.texRes) this.buildTexture(); // nítido a cualquier escala
     this.applyFx();
     this.rebuildKeys();
     this.renderFrame(this.lastT);
@@ -114,6 +116,7 @@ export class Scene {
     for (const sp of this.pool) sp.destroy();
     this.pool = [];
     this.texture?.destroy(true);
+    this.texRes = this.app.renderer.resolution;
     const { noteRadius: r, noteFill, outlineWidth: ow, relief } = this.style;
     const inset = this.inset, s = inset * 4;
     const g = new Graphics();
