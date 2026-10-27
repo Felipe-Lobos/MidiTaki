@@ -1,4 +1,4 @@
-import { Application, Container, Graphics, NineSliceSprite, Rectangle, Texture } from 'pixi.js';
+import { Application, ColorMatrixFilter, Container, Graphics, NineSliceSprite, Rectangle, Texture } from 'pixi.js';
 import { GlowFilter } from 'pixi-filters';
 import type { Song } from '../core/midi/types';
 import { buildKeyboardLayout, type KeyRange, type KeyRect } from '../core/keyboard/layout';
@@ -29,6 +29,7 @@ export class Scene {
   private texture!: Texture;
   private haloTex!: Texture;
   private haloPad = 0;
+  private texCache = new Map<string, { tex: Texture; halo: Texture; pad: number }>();
   private texRes = 1; // resolución con la que se generaron las texturas
 
   private song: Song | null = null;
@@ -54,6 +55,22 @@ export class Scene {
     this.fxAllowed = on;
     this.applyFx();
     this.renderFrame(this.lastT);
+  }
+
+  /**
+   * SOLO PARA EL EXPORT. Si el encoder entrega rango completo, comprime el color a 16–235 (rango
+   * "limitado", el estándar del video) para que todos los reproductores lo muestren igual.
+   * El fondo se dibuja como un rectángulo para que también quede dentro del filtro.
+   */
+  compressToLimitedRange() {
+    const bg = new Graphics().rect(0, 0, this.w, this.h).fill(hexToNum(this.style.background));
+    this.app.stage.addChildAt(bg, 0);
+    const a = 219 / 255, b = 16 / 255;
+    const f = new ColorMatrixFilter();
+    f.matrix = [a, 0, 0, 0, b, 0, a, 0, 0, b, 0, 0, a, 0, b, 0, 0, 0, 1, 0];
+    f.resolution = this.app.renderer.resolution; // sin esto el filtro iría a 1× y saldría borroso
+    this.app.stage.filterArea = new Rectangle(0, 0, this.w, this.h);
+    this.app.stage.filters = [f];
   }
 
   setStyle(style: Style) {
@@ -111,12 +128,42 @@ export class Scene {
     return Math.max(1, Math.round(Math.max(st.noteRadius, st.noteFill === 'outline' ? st.outlineWidth : 0)));
   }
 
-  /** Textura blanca de la nota (9-slice, se tiñe con tint) + textura del halo. */
+  /**
+   * Texturas de nota y de halo. Se guardan en una caché y NO se destruyen al cambiar de ajustes:
+   * destruir una textura que Pixi aún tiene enlazada genera el aviso "textureSource was destroyed
+   * while still bound". Solo se destruyen las más antiguas cuando la caché pasa de 24 entradas.
+   */
   private buildTexture() {
     for (const sp of this.pool) sp.destroy();
+    for (const sp of this.haloPool) sp.destroy();
     this.pool = [];
-    this.texture?.destroy(true);
-    this.texRes = this.app.renderer.resolution;
+    this.haloPool = [];
+    const st = this.style, res = this.app.renderer.resolution;
+    this.texRes = res;
+
+    const key = [st.noteRadius, st.noteFill, st.outlineWidth, st.relief, st.glowRadius, res].join('|');
+    let entry = this.texCache.get(key);
+    if (entry) {
+      this.texCache.delete(key); // reinsertar = marcar como "usada hace poco"
+    } else {
+      entry = { tex: this.makeNoteTexture(), ...this.makeHaloTexture() };
+      if (this.texCache.size >= 24) {
+        for (const [oldKey, old] of this.texCache) { // la más antigua
+          old.tex.destroy(true);
+          old.halo.destroy(true);
+          this.texCache.delete(oldKey);
+          break;
+        }
+      }
+    }
+    this.texCache.set(key, entry);
+    this.texture = entry.tex;
+    this.haloTex = entry.halo;
+    this.haloPad = entry.pad;
+  }
+
+  /** Textura blanca de la nota (9-slice, se tiñe con tint). */
+  private makeNoteTexture(): Texture {
     const { noteRadius: r, noteFill, outlineWidth: ow, relief } = this.style;
     const inset = this.inset, s = inset * 4;
     const g = new Graphics();
@@ -130,16 +177,13 @@ export class Scene {
     } else {
       g.roundRect(0, 0, s, s, r).fill(0xffffff);
     }
-    this.texture = this.app.renderer.generateTexture(g);
+    const tex = this.app.renderer.generateTexture(g);
     g.destroy();
-    this.buildHalo();
+    return tex;
   }
 
   /** Halo suave: capas concéntricas con poca opacidad (sin filtros → barato y con el color de cada nota). */
-  private buildHalo() {
-    for (const sp of this.haloPool) sp.destroy();
-    this.haloPool = [];
-    this.haloTex?.destroy(true);
+  private makeHaloTexture(): { halo: Texture; pad: number } {
     const { noteRadius: r, glowRadius } = this.style;
     const pad = Math.max(2, Math.round(glowRadius));
     const s = this.inset * 4;
@@ -150,9 +194,9 @@ export class Scene {
       g.roundRect(pad - d, pad - d, s + 2 * d, s + 2 * d, r + d).fill({ color: 0xffffff, alpha: a });
       g.roundRect(pad + 0.5, pad + 0.5, s - 1, s - 1, Math.max(r - 0.5, 0)).cut(); // el interior de la nota no brilla
     }
-    this.haloTex = this.app.renderer.generateTexture(g);
+    const halo = this.app.renderer.generateTexture(g);
     g.destroy();
-    this.haloPad = pad;
+    return { halo, pad };
   }
 
   private rebuildKeys() {

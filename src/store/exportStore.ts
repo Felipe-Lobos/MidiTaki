@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import type { ExportResolution } from '../core/format';
 import type { ExportSupport } from '../export/capabilities';
 
-export type ExportQuality = 'normal' | 'high' | 'max';
 export type ExportPhase = 'idle' | 'running' | 'done' | 'error' | 'canceled';
 
 const KEY = 'midi-fall:withAudio';
@@ -14,7 +13,6 @@ interface ExportState {
   phase: ExportPhase;
   stage: 'audio' | 'video';
   resolution: ExportResolution;
-  quality: ExportQuality;
   withAudio: boolean; // recuerda la última elección
   leadIn: number;     // s antes de la primera nota (las notas caen desde arriba)
   tail: number;       // s mínimos después de la última nota
@@ -31,7 +29,6 @@ export const useExportStore = create<ExportState>((set) => ({
   phase: 'idle',
   stage: 'video',
   resolution: 1080,
-  quality: 'high',
   withAudio: loadWithAudio(),
   leadIn: 3,
   tail: 2,

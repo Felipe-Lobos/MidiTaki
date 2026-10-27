@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
-import { useExportStore, type ExportQuality } from '../../store/exportStore';
+import { useExportStore } from '../../store/exportStore';
 import { useSongStore } from '../../store/songStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { usePlaybackStore } from '../../store/playbackStore';
 import { outputSize, type ExportResolution } from '../../core/format';
 import { detectSupport } from '../../export/capabilities';
 import { bitrateFor, cancelExport, startExport, totalFrames } from '../../export/exportVideo';
-import { AUDIO_BITRATE } from '../../audio/renderOffline.ts';
 
 const fmtTime = (s: number) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
 const deviceMemory = () => (navigator as unknown as { deviceMemory?: number }).deviceMemory;
@@ -17,7 +16,7 @@ export function ExportDialog() {
   const format = useSettingsStore((s) => s.format);
   const audioStatus = usePlaybackStore((s) => s.audioStatus);
   const size = outputSize(format, ex.resolution);
-  const bitrate = bitrateFor(ex.quality, size.width, size.height);
+  const bitrate = bitrateFor(size.width, size.height);
 
   // Comprueba qué códecs puede usar este navegador a este tamaño
   useEffect(() => {
@@ -36,7 +35,6 @@ export function ExportDialog() {
   const running = ex.phase === 'running';
   const frames = totalFrames(song, ex.leadIn, ex.tail, withAudio);
   const seconds = frames / 60;
-  const estMB = ((bitrate + (withAudio ? AUDIO_BITRATE : 0)) * seconds) / 8 / 1e6;
   const p = ex.progress;
   const lowMem = (deviceMemory() ?? 8) < 4;
 
@@ -60,14 +58,6 @@ export function ExportDialog() {
             </div>
           </div>
 
-          <div className="seg-row"><span>Calidad</span>
-            <div className="seg">
-              {([['normal', 'Normal'], ['high', 'Alta'], ['max', 'Máxima']] as [ExportQuality, string][]).map(([q, t]) => (
-                <button key={q} className={ex.quality === q ? 'on' : ''} onClick={() => ex.patch({ quality: q })}>{t}</button>
-              ))}
-            </div>
-          </div>
-
           <div className="seg-row"><span>Contenido</span>
             <div className="seg">
               <button className={!withAudio ? 'on' : ''} onClick={() => ex.patch({ withAudio: false })}>Solo video</button>
@@ -84,7 +74,7 @@ export function ExportDialog() {
           </div>
 
           <p className="muted">
-            Duración {fmtTime(seconds)} · {frames} frames · tamaño estimado ≈ {estMB.toFixed(0)} MB
+            Duración {fmtTime(seconds)} · {frames} frames
             {withAudio && ' · la cola se extiende hasta que el sonido decae'}
           </p>
 
