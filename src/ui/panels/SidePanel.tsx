@@ -6,15 +6,16 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { defaultStyle, type BoolKey, type ColorKey, type NumKey } from '../../core/style/schema';
 import { PRESETS } from '../../core/style/presets';
 import { exportPreset, importPreset } from '../../core/style/presetIO';
+import { t } from '../../i18n';
 
-const TABS = ['Notas', 'Teclado', 'Escena', 'Efectos', 'Audio', 'Presets'] as const;
+const TABS = ['notes', 'keyboard', 'scene', 'effects', 'audio', 'presets'] as const;
 type Tab = (typeof TABS)[number];
 
 export function SidePanel() {
-  const [tab, setTab] = useState<Tab>('Notas');
+  const [tab, setTab] = useState<Tab>('notes');
   const [importError, setImportError] = useState<string | null>(null);
   const { style, patch, apply, reset } = useStyleStore();
-  const { song, range } = useSongStore();
+  const { song, range, setRangeKey } = useSongStore();
   const { volume, setVolume, previewLeadTail, setPreviewLeadTail } = useSettingsStore();
 
   const num = (k: NumKey, label: string, min: number, max: number, step?: number, unit?: string) => (
@@ -33,77 +34,82 @@ export function SidePanel() {
   return (
     <aside className="side">
       <nav className="tabs">
-        {TABS.map((t) => (
-          <button key={t} className={t === tab ? 'on' : ''} onClick={() => setTab(t)}>{t}</button>
+        {TABS.map((id) => (
+          <button key={id} className={id === tab ? 'on' : ''} onClick={() => setTab(id)}>{t.tabs[id]}</button>
         ))}
       </nav>
 
       <div className="panel">
-        {tab === 'Notas' && <>
-          <Segmented label="Color" value={style.colorMode} onChange={(v) => patch({ colorMode: v })}
-            options={[{ value: 'solid', text: 'Sólido' }, { value: 'pitch', text: 'Por altura' }]} />
-          {color('noteColor', style.colorMode === 'pitch' ? 'Color graves' : 'Color')}
-          {style.colorMode === 'pitch' && color('noteColor2', 'Color agudos')}
-          {num('noteRadius', 'Esquinas', 0, 24, 1, ' px')}
-          {num('noteGap', 'Separación', 0, 8, 1, ' px')}
-          {num('noteOpacity', 'Opacidad', 0.2, 1)}
-          {bool('velocityOpacity', 'La fuerza (velocity) afecta la opacidad')}
-          <Segmented label="Relleno" value={style.noteFill} onChange={(v) => patch({ noteFill: v })}
-            options={[{ value: 'solid', text: 'Sólido' }, { value: 'outline', text: 'Hueco' }]} />
-          {style.noteFill === 'outline' && num('outlineWidth', 'Grosor del borde', 1, 8, 1, ' px')}
+        {tab === 'notes' && <>
+          <Segmented label={t.notes.color} value={style.colorMode} onChange={(v) => patch({ colorMode: v })}
+            options={[{ value: 'solid', text: t.notes.solid }, { value: 'pitch', text: t.notes.byPitch }]} />
+          {color('noteColor', style.colorMode === 'pitch' ? t.notes.bass : t.notes.color)}
+          {style.colorMode === 'pitch' && color('noteColor2', t.notes.treble)}
+          {num('noteRadius', t.notes.radius, 0, 24, 1, ' px')}
+          {num('noteGap', t.notes.gap, 0, 8, 1, ' px')}
+          {num('noteOpacity', t.notes.opacity, 0.2, 1)}
+          {bool('velocityOpacity', t.notes.velocity)}
+          <Segmented label={t.notes.fill} value={style.noteFill} onChange={(v) => patch({ noteFill: v })}
+            options={[{ value: 'solid', text: t.notes.solid }, { value: 'outline', text: t.notes.hollow }]} />
+          {style.noteFill === 'outline' && num('outlineWidth', t.notes.outline, 1, 8, 1, ' px')}
         </>}
 
-        {tab === 'Teclado' && <>
-          {outside > 0 && <p className="warn">{outside} notas quedan fuera del rango del teclado y no se dibujan.</p>}
-          {color('whiteKey', 'Teclas blancas')}
-          {color('blackKey', 'Teclas negras')}
-          {!style.syncColors && color('pressedColor', 'Tecla pulsada')}
-          {num('keyboardRatio', 'Altura del teclado', 0.08, 0.3)}
-          {num('keyPress', 'Profundidad al pulsar', 0, 12, 1, ' px')}
-          {bool('showHitLine', 'Línea de impacto')}
-          {style.showHitLine && color('hitLineColor', 'Color de la línea')}
+        {tab === 'keyboard' && <>
+          {outside > 0 && (
+            <div className="warn">
+              <p>{t.keyboard.outside(outside)}</p>
+              <button className="btn" onClick={() => setRangeKey('auto')}>{t.keyboard.fit}</button>
+            </div>
+          )}
+          {color('whiteKey', t.keyboard.white)}
+          {color('blackKey', t.keyboard.black)}
+          {!style.syncColors && color('pressedColor', t.keyboard.pressed)}
+          {num('keyboardRatio', t.keyboard.height, 0.08, 0.3)}
+          {num('keyPress', t.keyboard.press, 0, 12, 1, ' px')}
+          {bool('showHitLine', t.keyboard.hitLine)}
+          {style.showHitLine && color('hitLineColor', t.keyboard.hitColor)}
         </>}
 
-        {tab === 'Escena' && <>
-          {color('background', 'Fondo')}
-          {num('fallSeconds', 'Segundos visibles (menos = más rápido)', 1, 8, 0.1, ' s')}
-          <Toggle label="Mostrar entrada y cola en la vista previa" value={previewLeadTail} onChange={setPreviewLeadTail} />
+        {tab === 'scene' && <>
+          {color('background', t.scene.background)}
+          {num('fallSeconds', t.scene.fall, 1, 8, 0.1, ' s')}
+          <Toggle label={t.scene.leadTail} value={previewLeadTail} onChange={setPreviewLeadTail} />
         </>}
 
-        {tab === 'Efectos' && <>
-          {bool('glow', 'Brillo neón (glow)')}
-          {bool('syncColors', 'Sincronizar tecla y brillo con el color de la nota')}
-          {style.glow && !style.syncColors && color('glowColor', 'Color del brillo')}
-          {style.glow && num('glowStrength', 'Intensidad del brillo', 0, 3)}
-          {style.glow && num('glowRadius', 'Radio del brillo', 2, 24, 1, ' px')}
-          {num('relief', 'Relieve 2.5D (notas y teclas)', 0, 1)}
-          <p className="muted">El interruptor «Efectos» de la barra superior solo afecta a la vista previa; el video exportado siempre usa calidad completa.</p>
+        {tab === 'effects' && <>
+          {bool('glow', t.effects.glow)}
+          {bool('syncColors', t.effects.sync)}
+          {style.glow && !style.syncColors && color('glowColor', t.effects.glowColor)}
+          {style.glow && num('glowStrength', t.effects.glowStrength, 0, 3)}
+          {style.glow && num('glowRadius', t.effects.glowRadius, 2, 24, 1, ' px')}
+          {num('relief', t.effects.relief, 0, 1)}
+          <p className="muted">{t.effects.note}</p>
         </>}
 
-        {tab === 'Audio' && <>
-          <Slider label="Volumen general" value={volume} def={1} min={0} max={1.5} step={0.05} onChange={setVolume} />
-          <p className="muted">Afecta a la reproducción y al audio exportado. No se guarda en los presets.</p>
+        {tab === 'audio' && <>
+          <Slider label={t.audio.volume} value={volume} def={1} min={0} max={1.5} step={0.05} onChange={setVolume} />
+          <p className="muted">{t.audio.note}</p>
         </>}
 
-        {tab === 'Presets' && <>
+        {tab === 'presets' && <>
           <div className="presets">
-            {PRESETS.map((p) => <button key={p.name} className="btn" onClick={() => apply(p.style)}>{p.name}</button>)}
+            {PRESETS.map((p) => <button key={p.id} className="btn" onClick={() => apply(p.style)}>{t.presetNames[p.id]}</button>)}
           </div>
           <div className="presets">
-            <button className="btn" onClick={() => exportPreset(style)}>Exportar JSON</button>
+            <button className="btn" onClick={() => exportPreset(style)}>{t.presets.exportJson}</button>
             <label className="btn">
-              Importar JSON
+              {t.presets.importJson}
               <input type="file" accept=".json,application/json" hidden onChange={async (e) => {
                 const f = e.target.files?.[0];
                 e.target.value = '';
                 if (!f) return;
                 try { apply(await importPreset(f)); setImportError(null); }
-                catch (err) { setImportError(err instanceof Error ? err.message : 'No se pudo importar.'); }
+                catch (err) { setImportError(err instanceof Error ? err.message : t.presets.importFailed); }
               }} />
             </label>
           </div>
           {importError && <p className="warn">{importError}</p>}
-          <button className="btn" onClick={reset}>Restablecer todo</button>
+          <button className="btn" onClick={reset}>{t.presets.resetStyle}</button>
         </>}
       </div>
     </aside>

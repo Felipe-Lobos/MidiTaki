@@ -5,7 +5,9 @@ import { useSongStore } from '../store/songStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { useStyleStore } from '../store/styleStore';
 import { useExportStore } from '../store/exportStore';
-import { previewBounds } from '../core/timeline/bounds.ts';
+import { previewBounds } from '../core/timeline/bounds';
+import { notify, useNoticeStore } from '../store/noticeStore';
+import { t } from '../i18n';
 
 const LOOKAHEAD = 1.2;   // s: cuánto adelanto programamos notas
 const TICK_MS = 50;      // cada cuánto revisamos si hay que programar más
@@ -13,6 +15,9 @@ const START_DELAY = 0.08;// s: margen para que el primer sonido no llegue tarde
 const END_TAIL = 1.5;    // s: dejamos sonar la cola final
 
 const store = () => usePlaybackStore.getState();
+
+/** El navegador no dejó arrancar el audio (falta un gesto del usuario). */
+class AudioBlockedError extends Error {}
 
 /**
  * Reloj maestro = AudioContext.currentTime.
@@ -59,6 +64,7 @@ class Transport {
       this.initPromise = null;
       this.ctx = null;
       store().setAudioStatus('error');
+      notify({ id: 'audio-init', level: 'error', text: t.notices.audioInit });
       throw e;
     }));
   }
@@ -71,8 +77,23 @@ class Transport {
       if (this.bus) this.bus.gain.setTargetAtTime(MASTER_BASE * s.volume, ctx.currentTime, 0.02);
     });
     store().setAudioStatus('loading');
-    const ok = await this.sampler.load(ctx);
+    this.reportSamples(await this.sampler.load(ctx));
+  }
+
+  private reportSamples(ok: boolean) {
     store().setAudioStatus(ok ? 'ready' : 'fallback');
+    if (ok) useNoticeStore.getState().dismiss('samples');
+    else notify({
+      id: 'samples', level: 'warn', text: t.notices.samplesFailed,
+      action: { label: t.common.retry, run: () => { void this.retrySamples(); } },
+    });
+  }
+
+  /** Vuelve a descargar las muestras del piano (botón «Reintentar»). */
+  async retrySamples() {
+    if (!this.ctx) { await this.init().catch(() => {}); return; }
+    store().setAudioStatus('loading');
+    this.reportSamples(await this.sampler.load(this.ctx));
   }
 
   /** Se llama al cargar una canción nueva: detiene y vuelve al inicio. */
@@ -91,7 +112,7 @@ class Transport {
         await Promise.race([ctx.resume(), new Promise((r) => setTimeout(r, 2000))]);
       }
       if (ctx.state !== 'running') {
-        throw new Error(`AudioContext en estado "${ctx.state}": el navegador bloqueó el audio.`);
+        throw new AudioBlockedError(`AudioContext en estado "${ctx.state}"`);
       }
       if (this.playing) return;
 
@@ -117,6 +138,7 @@ class Transport {
       cancelAnimationFrame(this.raf);
       store().setPlaying(false);
       store().setAudioStatus('error');
+      notify({ id: 'audio-play', level: 'error', text: e instanceof AudioBlockedError ? t.notices.audioBlocked : t.notices.playFailed, timeoutMs: 8000 });
     }
   }
 

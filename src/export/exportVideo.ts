@@ -5,6 +5,7 @@ import {
 } from 'mediabunny';
 import { Scene } from '../render/Scene';
 import { probeEncoderRange } from './rangeProbe';
+import { t } from '../i18n';
 import type { Song } from '../core/midi/types';
 import { LOGICAL, outputSize } from '../core/format';
 import { AUDIO_BITRATE, AUDIO_RATE, renderAudio, sliceBuffer } from '../audio/renderOffline';
@@ -50,6 +51,16 @@ type Picker = (o: {
   suggestedName: string;
   types: { description: string; accept: Record<string, string[]> }[];
 }) => Promise<SaveHandle>;
+
+/** Traduce el error del navegador a un mensaje que el usuario pueda entender. */
+function describeExportError(e: unknown): string {
+  const name = (e as { name?: string } | null)?.name ?? '';
+  const msg = e instanceof Error ? e.message : '';
+  if (name === 'NotAllowedError' || name === 'SecurityError') return t.export.errPermission;
+  if (name === 'QuotaExceededError') return t.export.errDisk;
+  if (name === 'RangeError' || /memory|allocation/i.test(msg)) return t.export.errMemory;
+  return msg ? `${t.export.errGeneric} (${msg})` : t.export.errGeneric;
+}
 
 let controller: AbortController | null = null;
 export const cancelExport = () => controller?.abort();
@@ -103,7 +114,7 @@ export async function startExport(): Promise<void> {
   const canceled = async () => {
     try { if (output && output.state === 'started') await output.cancel(); } catch { /* ya cerrado */ }
     await handle?.remove?.().catch(() => {});
-    set({ phase: 'canceled', message: 'Exportación cancelada.' });
+    set({ phase: 'canceled', message: t.export.canceled });
   };
 
   try {
@@ -112,7 +123,7 @@ export async function startExport(): Promise<void> {
     if (withAudio) {
       await transport.init(); // asegura que las muestras de piano estén cargadas
       audio = await renderAudio(song, { leadIn: ex.leadIn, frames: total, fps: FPS, volume });
-      if (audio.length !== total * (AUDIO_RATE / FPS)) throw new Error('El audio no coincide con la duración del video.');
+      if (audio.length !== total * (AUDIO_RATE / FPS)) throw new Error(t.export.errAudioMismatch);
       if (ctl.signal.aborted) return await canceled();
     }
     set({ stage: 'video' });
@@ -127,7 +138,7 @@ export async function startExport(): Promise<void> {
     app.ticker.stop();
     const canvas = app.canvas as HTMLCanvasElement;
     if (canvas.width !== size.width || canvas.height !== size.height || canvas.width % 2 || canvas.height % 2) {
-      throw new Error(`Tamaño de canvas inesperado: ${canvas.width}×${canvas.height} (se esperaba ${size.width}×${size.height}).`);
+      throw new Error(t.export.errCanvasSize(canvas.width, canvas.height, size.width, size.height));
     }
     const scene = new Scene(app, style); // efectos SIEMPRE activos en el export
     scene.setSong(song, range);
@@ -194,12 +205,12 @@ export async function startExport(): Promise<void> {
         setTimeout(() => URL.revokeObjectURL(a.href), 10000);
       }
     }
-    set({ phase: 'done', message: `${handle ? `Guardado como ${handle.name}` : 'Descarga iniciada.'} ${withAudio ? `(video + audio ${support.audioCodec})` : '(solo video)'}` });
+    set({ phase: 'done', message: t.export.done(handle ? handle.name : null, withAudio ? String(support.audioCodec) : null) });
   } catch (e) {
     console.error('[export] falló:', e);
     try { if (output && output.state === 'started') await output.cancel(); } catch { /* ya cerrado */ }
     await handle?.remove?.().catch(() => {});
-    set({ phase: 'error', message: e instanceof Error ? e.message : 'Error desconocido al exportar.' });
+    set({ phase: 'error', message: describeExportError(e) });
   } finally {
     await wake?.release().catch(() => {});
     app?.destroy(true, { children: true });

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
+import { t } from '../../i18n';
 
 function Head({ label, shown, changed, onReset }: { label: string; shown?: string; changed: boolean; onReset: () => void }) {
   return (
     <div className="ctl-head">
       <span>{label}</span>
       <span className="muted num">{shown}</span>
-      <button className="reset" title="Restablecer" disabled={!changed} onClick={onReset}>↺</button>
+      <button className="reset" title={t.common.reset} disabled={!changed} onClick={onReset}>↺</button>
     </div>
   );
 }

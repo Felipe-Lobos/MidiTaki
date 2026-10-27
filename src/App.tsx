@@ -1,33 +1,49 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { PreviewCanvas } from './ui/canvas/PreviewCanvas';
 import { SidePanel } from './ui/panels/SidePanel';
+import { NoticeBar } from './ui/NoticeBar.tsx';
+import { AboutDialog } from './ui/AboutDialog.tsx';
+import { ExportDialog } from './ui/export/ExportDialog';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
 import { useSettingsStore } from './store/settingsStore';
-import { ExportDialog } from './ui/export/ExportDialog';
 import { useExportStore } from './store/exportStore';
 import { useStyleStore } from './store/styleStore';
-import { previewBounds } from './core/timeline/bounds.ts';
+import { notify } from './store/noticeStore.ts';
+import { previewBounds } from './core/timeline/bounds';
+import { compat } from './core/compat.ts';
 import { transport } from './playback/Transport';
+import { t } from './i18n';
 
-const STATUS_TEXT = {
-  idle: '',
-  loading: 'Cargando piano…',
-  ready: 'Piano listo',
-  fallback: 'Sin muestras de piano: sonido de prueba',
-  error: 'Error de audio: revisa la consola (F12)',
-} as const;
+const KEYBOARD_OPTIONS = ['auto', '88', '76', '61', '49'];
 
-export default function App() {
-  const { song, fileName, error, rangeKey, loadFile, setRangeKey } = useSongStore();
+function Unsupported() {
+  return (
+    <div className="unsupported">
+      <h1>{t.unsupported.title}</h1>
+      <p>{t.unsupported.text}</p>
+    </div>
+  );
+}
+
+function Main() {
+  const { song, fileName, rangeKey, loadFile, setRangeKey } = useSongStore();
   const { time, playing, audioStatus } = usePlaybackStore();
   const { previewFx, setPreviewFx, format, setFormat } = useSettingsStore();
   const leadTail = useSettingsStore((s) => s.previewLeadTail);
   const fall = useStyleStore((s) => s.style.fallSeconds);
   const tail = useExportStore((s) => s.tail);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const b = song ? previewBounds(song, leadTail, fall, tail) : { min: 0, max: 1 };
 
-  // Cuando cambia la canción, el transport la recibe y vuelve a 0
+  useEffect(() => {
+    document.title = t.app.name;
+    document.documentElement.lang = 'es';
+    if (!compat.webCodecs) notify({ id: 'compat-codecs', level: 'warn', text: t.notices.webCodecs });
+    if (!compat.webAudio) notify({ id: 'compat-audio', level: 'warn', text: t.notices.webAudio });
+  }, []);
+
+  // Cuando cambia la canción, el transport la recibe y vuelve al inicio
   useEffect(() => {
     if (song) transport.reset();
   }, [song]);
@@ -35,37 +51,42 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
+        <strong className="brand">{t.app.name}</strong>
         <label className="btn">
-          Cargar MIDI
+          {t.top.loadMidi}
           <input type="file" accept=".mid,.midi" hidden
             onChange={(e) => {
               const file = e.target.files?.[0];
+              e.target.value = ''; // permite volver a elegir el mismo archivo
               if (!file) return;
               transport.init().catch(() => {}); // crea el AudioContext dentro de un gesto del usuario
-              loadFile(file);
+              void loadFile(file);
             }} />
         </label>
-        <span className="muted">{error ?? (fileName || 'Ningún archivo')}</span>
-        <span className="muted">{STATUS_TEXT[audioStatus]}</span>
-        <label className="muted" title="Solo afecta a la vista previa, no al video exportado">
-          <input type="checkbox" checked={previewFx} onChange={(e) => setPreviewFx(e.target.checked)} /> Efectos
+        <span className="muted">{fileName || t.top.noFile}</span>
+        <span className="muted">{t.audioStatus[audioStatus]}</span>
+        <label className="muted" title={t.top.effectsTitle}>
+          <input type="checkbox" checked={previewFx} onChange={(e) => setPreviewFx(e.target.checked)} /> {t.top.effects}
         </label>
         <select value={rangeKey} onChange={(e) => setRangeKey(e.target.value)}>
-          <option value="auto">Teclado: automático</option>
-          <option value="88">88 teclas</option>
-          <option value="76">76 teclas</option>
-          <option value="61">61 teclas</option>
-          <option value="49">49 teclas</option>
+          {KEYBOARD_OPTIONS.map((k) => (
+            <option key={k} value={k}>{k === 'auto' ? t.top.keyboardAuto : t.top.keys(Number(k))}</option>
+          ))}
         </select>
         <select className="inline" value={format} onChange={(e) => setFormat(e.target.value as 'landscape' | 'portrait')}>
-          <option value="landscape">Horizontal 16:9</option>
-          <option value="portrait">Vertical 9:16</option>
+          <option value="landscape">{t.top.landscape}</option>
+          <option value="portrait">{t.top.portrait}</option>
         </select>
-        <button className="btn primary" disabled={!song} onClick={() => {
-          transport.pause();
-          useExportStore.getState().openDialog(Math.round(useStyleStore.getState().style.fallSeconds * 2) / 2);
-        }}>Exportar</button>
+        <button className="btn primary" disabled={!song || !compat.webCodecs}
+          title={compat.webCodecs ? undefined : t.top.exportUnavailable}
+          onClick={() => {
+            transport.pause();
+            useExportStore.getState().openDialog(Math.round(useStyleStore.getState().style.fallSeconds * 2) / 2);
+          }}>{t.top.export}</button>
+        <button className="btn" onClick={() => setAboutOpen(true)}>{t.top.about}</button>
       </header>
+
+      <NoticeBar />
 
       <div className="main">
         <PreviewCanvas />
@@ -73,16 +94,21 @@ export default function App() {
       </div>
 
       <footer className="transport">
-        <button className="btn" disabled={!song || audioStatus === 'loading'}
-          onClick={() => transport.toggle()}>
-          {playing ? 'Pausa' : 'Play'}
+        <button className="btn" disabled={!song || audioStatus === 'loading'} onClick={() => transport.toggle()}>
+          {playing ? t.transport.pause : t.transport.play}
         </button>
         <input type="range" min={b.min} max={b.max} step={0.01}
           value={time} disabled={!song}
           onChange={(e) => transport.seek(Number(e.target.value))} />
         <span className="muted time">{time.toFixed(2)} / {(song ? b.max : 0).toFixed(2)} s</span>
       </footer>
+
       <ExportDialog />
+      <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
     </div>
   );
+}
+
+export default function App() {
+  return compat.webgl ? <Main /> : <Unsupported />;
 }

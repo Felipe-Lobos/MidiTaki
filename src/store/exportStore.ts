@@ -1,12 +1,9 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { ExportResolution } from '../core/format';
 import type { ExportSupport } from '../export/capabilities';
 
 export type ExportPhase = 'idle' | 'running' | 'done' | 'error' | 'canceled';
-
-const KEY = 'midi-fall:withAudio';
-const loadWithAudio = () => { try { return localStorage.getItem(KEY) !== '0'; } catch { return true; } };
-const saveWithAudio = (v: boolean) => { try { localStorage.setItem(KEY, v ? '1' : '0'); } catch { /* sin almacenamiento */ } };
 
 interface ExportState {
   open: boolean;
@@ -24,21 +21,36 @@ interface ExportState {
   close: () => void;
 }
 
-export const useExportStore = create<ExportState>((set) => ({
-  open: false,
-  phase: 'idle',
-  stage: 'video',
-  resolution: 1080,
-  withAudio: loadWithAudio(),
-  leadIn: 3,
-  tail: 2,
-  support: null,
-  progress: { frame: 0, total: 0, fps: 0, etaSec: 0 },
-  message: null,
-  patch: (p) => {
-    if (p.withAudio !== undefined) saveWithAudio(p.withAudio);
-    set(p);
-  },
-  openDialog: (leadIn) => set({ open: true, phase: 'idle', message: null, leadIn }),
-  close: () => set({ open: false }),
-}));
+export const useExportStore = create<ExportState>()(
+  persist(
+    (set) => ({
+      open: false,
+      phase: 'idle',
+      stage: 'video',
+      resolution: 1080,
+      withAudio: true,
+      leadIn: 3,
+      tail: 2,
+      support: null,
+      progress: { frame: 0, total: 0, fps: 0, etaSec: 0 },
+      message: null,
+      patch: (p) => set(p),
+      openDialog: (leadIn) => set({ open: true, phase: 'idle', message: null, leadIn }),
+      close: () => set({ open: false }),
+    }),
+    {
+      name: 'miditaki:export',
+      version: 1,
+      partialize: (s) => ({ resolution: s.resolution, withAudio: s.withAudio, tail: s.tail }),
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as { resolution?: unknown; withAudio?: unknown; tail?: unknown };
+        return {
+          ...current,
+          resolution: p.resolution === 720 ? 720 : 1080,
+          withAudio: typeof p.withAudio === 'boolean' ? p.withAudio : true,
+          tail: typeof p.tail === 'number' && isFinite(p.tail) ? Math.min(10, Math.max(0, p.tail)) : 2,
+        };
+      },
+    },
+  ),
+);

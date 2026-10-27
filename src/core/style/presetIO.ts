@@ -1,4 +1,5 @@
 import { defaultStyle, type Style } from './schema';
+import { t } from '../../i18n';
 
 const HEX = /^#[0-9a-f]{6}$/i;
 const ENUMS: Partial<Record<keyof Style, string[]>> = {
@@ -42,7 +43,7 @@ export function exportPreset(style: Style) {
 export async function importPreset(file: File): Promise<Style> {
   let json: unknown;
   try { json = JSON.parse(await file.text()); }
-  catch { throw new Error('El archivo no es un JSON válido.'); }
+  catch { throw new Error(t.presets.invalidJson); }
   const obj = json as { style?: unknown };
   return sanitizeStyle(obj && typeof obj === 'object' && 'style' in obj ? obj.style : json);
 }
