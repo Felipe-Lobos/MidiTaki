@@ -6,6 +6,7 @@ import { useSongStore } from '../../store/songStore';
 import { usePlaybackStore } from '../../store/playbackStore';
 import { useStyleStore } from '../../store/styleStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useUiStore } from '../../store/uiStore';
 import { notify, useNoticeStore } from '../../store/noticeStore.ts';
 import { t } from '../../i18n';
 
@@ -66,6 +67,16 @@ export function PreviewCanvas() {
           app.canvas.style.height = `${h * k}px`;
         };
         app.renderer.on('resize', (w: number, h: number) => scene.resize(w, h));
+
+        // Clic en el canvas: abre el panel en la pestaña de lo que se tocó (nota, teclado o fondo)
+        const onClick = (e: MouseEvent) => {
+          const r = canvas.getBoundingClientRect();
+          const { w, h } = logical();
+          const region = scene.hitTest(((e.clientX - r.left) / r.width) * w, ((e.clientY - r.top) / r.height) * h);
+          useUiStore.getState().openTab(region === 'notes' ? 'notes' : region === 'keyboard' ? 'keyboard' : 'scene');
+        };
+        canvas.addEventListener('click', onClick);
+        unsubs.push(() => canvas.removeEventListener('click', onClick));
 
         const sync = () => {
           const { song, range } = useSongStore.getState();

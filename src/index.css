@@ -96,3 +96,27 @@ select.inline { margin-left: 0; }
 .drop-card p { margin: 0; }
 .drop-card ol { margin: 4px 0; padding-left: 20px; text-align: left; display: flex; flex-direction: column; gap: 6px; opacity: .85; }
 .drop-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; font-size: 22px; background: #0b0b10d9; border: 3px dashed #2d6df6; pointer-events: none; }
+
+/* ---- Hito 8c: presets con vista previa, panel plegable, móvil ---- */
+.canvas-host canvas { cursor: pointer; }
+.side.closed { display: none; }
+.side-close { display: none; background: none; border: 0; color: inherit; font-size: 18px; cursor: pointer; padding: 0 8px; opacity: .7; }
+.btn.on { background: #353544; }
+.preset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.preset { display: flex; flex-direction: column; gap: 6px; padding: 6px; background: #2a2a33; border: 2px solid transparent; border-radius: 10px; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.preset:hover { background: #32323d; }
+.preset.on { border-color: #2d6df6; }
+.preset-prev { position: relative; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid #ffffff22; }
+.preset-prev .pn { position: absolute; bottom: 14px; width: 16%; }
+.preset-prev .pk { position: absolute; left: 0; right: 0; bottom: 0; height: 14px; }
+.preset-prev .pk b { position: absolute; top: 0; width: 8%; height: 62%; }
+
+/* Móvil / tablet vertical: el panel va debajo del canvas (así se ve el efecto mientras se ajusta) */
+@media (max-width: 800px) {
+  .topbar, .transport { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
+  .transport input[type=range] { min-width: 140px; }
+  .main { flex-direction: column; }
+  .side { width: 100%; height: 44vh; border-left: 0; border-top: 1px solid #25252d; }
+  .side-close { display: block; flex: none; }
+  .drop-card { padding: 18px 16px; }
+}

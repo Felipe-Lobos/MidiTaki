@@ -9,6 +9,7 @@ export const es = {
     keyboardAuto: 'Teclado: automático', keys: (n: number) => `${n} teclas`,
     landscape: 'Horizontal 16:9', portrait: 'Vertical 9:16',
     export: 'Exportar', exportUnavailable: 'Este navegador no puede exportar video', about: 'Acerca de',
+    panel: '☰ Panel', panelTitle: 'Mostrar u ocultar el panel de ajustes', closePanel: 'Cerrar panel',
   },
   audioStatus: {
     idle: '', loading: 'Cargando piano…', ready: 'Piano listo',
@@ -72,7 +73,10 @@ export const es = {
     exportJson: 'Exportar JSON', importJson: 'Importar JSON', resetStyle: 'Restablecer estilo',
     invalidJson: 'El archivo no es un JSON válido.', importFailed: 'No se pudo importar el preset.',
   },
-  presetNames: { ocean: 'Océano', neonHollow: 'Neón hueco', neon: 'Neón', sunset: 'Atardecer', classic: 'Clásico' },
+  presetNames: {
+    ocean: 'Océano', neon: 'Neón', neonHollow: 'Neón hueco', sunset: 'Atardecer', fire: 'Fuego',
+    aurora: 'Aurora', steel: 'Acero', midnight: 'Medianoche', paper: 'Papel', classic: 'Clásico',
+  },
 
   export: {
     title: 'Exportar video', format: 'Formato', resolution: 'Resolución', content: 'Contenido',

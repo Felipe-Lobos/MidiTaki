@@ -5,14 +5,13 @@ import { useSongStore } from '../../store/songStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { defaultStyle, type BoolKey, type ColorKey, type NumKey } from '../../core/style/schema';
 import { PRESETS } from '../../core/style/presets';
-import { exportPreset, importPreset } from '../../core/style/presetIO';
+import { PresetPreview } from './PresetCard';
+import { TABS, useUiStore } from '../../store/uiStore';
+import { exportPreset, importPreset, sanitizeStyle } from '../../core/style/presetIO';
 import { t } from '../../i18n';
 
-const TABS = ['notes', 'keyboard', 'scene', 'effects', 'audio', 'presets'] as const;
-type Tab = (typeof TABS)[number];
-
 export function SidePanel() {
-  const [tab, setTab] = useState<Tab>('notes');
+  const { tab, setTab, panelOpen, setPanelOpen } = useUiStore();
   const [importError, setImportError] = useState<string | null>(null);
   const { style, patch, apply, reset } = useStyleStore();
   const { song, range, setRangeKey } = useSongStore();
@@ -32,11 +31,12 @@ export function SidePanel() {
   const outside = song ? song.notes.filter((n) => n.midi < range.low || n.midi > range.high).length : 0;
 
   return (
-    <aside className="side">
+    <aside className={panelOpen ? 'side' : 'side closed'}>
       <nav className="tabs">
         {TABS.map((id) => (
           <button key={id} className={id === tab ? 'on' : ''} onClick={() => setTab(id)}>{t.tabs[id]}</button>
         ))}
+        <button className="side-close" title={t.top.closePanel} aria-label={t.top.closePanel} onClick={() => setPanelOpen(false)}>✕</button>
       </nav>
 
       <div className="panel">
@@ -114,8 +114,17 @@ export function SidePanel() {
         </>}
 
         {tab === 'presets' && <>
-          <div className="presets">
-            {PRESETS.map((p) => <button key={p.id} className="btn" onClick={() => apply(p.style)}>{t.presetNames[p.id]}</button>)}
+          <div className="preset-grid">
+            {PRESETS.map((p) => {
+              const full = sanitizeStyle({ ...defaultStyle, ...p.style });
+              const on = JSON.stringify(full) === JSON.stringify(style); // el preset aplicado y sin cambios
+              return (
+                <button key={p.id} className={on ? 'preset on' : 'preset'} onClick={() => apply(p.style)}>
+                  <PresetPreview style={full} />
+                  <span>{t.presetNames[p.id]}</span>
+                </button>
+              );
+            })}
           </div>
           <div className="presets">
             <button className="btn" onClick={() => exportPreset(style)}>{t.presets.exportJson}</button>

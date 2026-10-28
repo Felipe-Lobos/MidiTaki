@@ -12,6 +12,7 @@ import { usePlaybackStore } from './store/playbackStore';
 import { useSettingsStore } from './store/settingsStore';
 import { useExportStore } from './store/exportStore';
 import { useStyleStore } from './store/styleStore';
+import { useUiStore } from './store/uiStore';
 import { notify } from './store/noticeStore.ts';
 import { previewBounds } from './core/timeline/bounds';
 import { compat } from './core/compat.ts';
@@ -37,6 +38,7 @@ function Main() {
   const fall = useStyleStore((s) => s.style.fallSeconds);
   const tail = useExportStore((s) => s.tail);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const { panelOpen, togglePanel } = useUiStore();
   const dragging = useMidiDrop();
   useShortcuts(!aboutOpen);
   const b = song ? previewBounds(song, leadTail, fall, tail) : { min: 0, max: 1 };
@@ -81,6 +83,7 @@ function Main() {
             transport.pause();
             useExportStore.getState().openDialog(Math.round(useStyleStore.getState().style.fallSeconds * 2) / 2);
           }}>{t.top.export}</button>
+        <button className={panelOpen ? 'btn on' : 'btn'} title={t.top.panelTitle} aria-pressed={panelOpen} onClick={togglePanel}>{t.top.panel}</button>
         <button className="btn" onClick={() => setAboutOpen(true)}>{t.top.about}</button>
       </header>
 

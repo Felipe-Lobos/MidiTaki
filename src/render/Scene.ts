@@ -7,6 +7,8 @@ import type { Style } from '../core/style/schema';
 import { computeParticle, particleLifeFor, particleRate, particleSegments, type PState } from './particles';
 import { contrastColor, hexToNum, lerpColor, noteTint } from '../core/colors/colorMapping';
 
+export type HitRegion = 'notes' | 'keyboard' | 'scene';
+
 interface PartTex { dot: Texture; glow: Texture; star: Texture; streak: Texture; bar: Texture }
 const MAX_PARTICLES = 900; // tope de partículas dibujadas a la vez (protege tablets y notas muy densas)
 
@@ -313,6 +315,16 @@ export class Scene {
       this.haloPool[i] = sp;
     }
     return this.haloPool[i];
+  }
+
+  /** ¿Qué hay bajo el punto (x, y), en coordenadas lógicas? Sirve para abrir la pestaña de ajustes correspondiente. */
+  hitTest(x: number, y: number): HitRegion {
+    if (y >= this.hitY - 3) return 'keyboard'; // teclado y línea de impacto
+    for (let i = this.pool.length - 1; i >= 0; i--) {
+      const sp = this.pool[i];
+      if (sp.visible && x >= sp.x && x <= sp.x + sp.width && y >= sp.y && y <= sp.y + sp.height) return 'notes';
+    }
+    return 'scene'; // fondo y líneas de octava
   }
 
   private partTextures(): PartTex {
