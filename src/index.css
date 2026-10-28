@@ -83,3 +83,7 @@ select.inline { margin-left: 0; }
 .swatch .sw-btn { display: flex; background: none; border: 0; padding: 0; cursor: pointer; }
 .swatch input.hex { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: inherit; font: inherit; }
 .swatch input.hex.bad { color: #ff7b7b; }
+
+/* Segmented con varias filas (selector de efecto de partículas) */
+.seg.wrap { flex-wrap: wrap; gap: 3px; }
+.seg.wrap button { flex: 1 1 30%; }

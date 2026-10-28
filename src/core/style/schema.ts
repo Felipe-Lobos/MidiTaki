@@ -1,4 +1,4 @@
-export type ParticleType = 'sparks' | 'embers' | 'ring' | 'stars';
+export type ParticleType = 'sparks' | 'embers' | 'trails' | 'stars' | 'friction' | 'electric';
 
 // TODA la apariencia vive aquí: un objeto plano y serializable (colores en '#rrggbb').
 export interface Style {

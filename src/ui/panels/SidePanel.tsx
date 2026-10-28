@@ -91,16 +91,17 @@ export function SidePanel() {
           {num('relief', t.effects.relief, 0, 1)}
           {bool('particles', t.particles.enable)}
           {style.particles && <>
-            <Segmented label={t.particles.type} value={style.particleType} onChange={(v) => patch({ particleType: v })}
+            <Segmented label={t.particles.type} wrap value={style.particleType} onChange={(v) => patch({ particleType: v })}
               options={[
                 { value: 'sparks', text: t.particles.sparks }, { value: 'embers', text: t.particles.embers },
-                { value: 'ring', text: t.particles.ring }, { value: 'stars', text: t.particles.stars },
+                { value: 'trails', text: t.particles.trails }, { value: 'stars', text: t.particles.stars },
+                { value: 'friction', text: t.particles.friction }, { value: 'electric', text: t.particles.electric },
               ]} />
             {num('particleAmount', t.particles.amount, 2, 120, 1, ' /s')}
             {num('particleSize', t.particles.size, 1, 12, 0.5, ' px')}
             {num('particleSpeed', t.particles.speed, 40, 600, 10, ' px/s')}
             {num('particleLife', t.particles.life, 0.2, 3, 0.1, ' s')}
-            {style.particleType !== 'ring' && num('particleSpread', t.particles.spread, 0, 1)}
+            {num('particleSpread', t.particles.spread, 0, 1)}
             {bool('particleGlow', t.particles.glow)}
             <p className="muted">{t.particles.note}</p>
           </>}

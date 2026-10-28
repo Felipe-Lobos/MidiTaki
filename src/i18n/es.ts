@@ -43,7 +43,7 @@ export const es = {
   },
   particles: {
     enable: 'Partículas al tocar la tecla',
-    type: 'Efecto', sparks: 'Chispas', embers: 'Brasas', ring: 'Anillos', stars: 'Estrellas',
+    type: 'Efecto', sparks: 'Chispas', embers: 'Brasas', trails: 'Estelas', stars: 'Estrellas', friction: 'Fricción', electric: 'Electricidad',
     amount: 'Cantidad (por segundo y nota)', size: 'Tamaño', speed: 'Velocidad', life: 'Duración',
     spread: 'Dispersión', glow: 'Brillo en las partículas',
     note: 'Toman el color de su nota. Con «Efectos» apagado en la barra superior no se ven en la vista previa; el video exportado las incluye siempre.',

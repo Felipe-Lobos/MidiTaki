@@ -4,10 +4,10 @@ import type { Song } from '../core/midi/types';
 import { buildKeyboardLayout, type KeyRange, type KeyRect } from '../core/keyboard/layout';
 import { visibleNotes } from '../core/timeline/visibleNotes';
 import type { Style } from '../core/style/schema';
-import { computeParticle, particleRate, type PState } from './particles.ts';
+import { computeParticle, particleLifeFor, particleRate, particleSegments, type PState } from './particles';
 import { contrastColor, hexToNum, lerpColor, noteTint } from '../core/colors/colorMapping';
 
-interface PartTex { dot: Texture; glow: Texture; star: Texture; ring: Texture; ringGlow: Texture }
+interface PartTex { dot: Texture; glow: Texture; star: Texture; streak: Texture; bar: Texture }
 const MAX_PARTICLES = 900; // tope de partículas dibujadas a la vez (protege tablets y notas muy densas)
 
 interface KeyView { rect: KeyRect; g: Graphics; pressTint: number | null }
@@ -31,7 +31,7 @@ export class Scene {
   private partPool: Sprite[] = [];
   private partGlowPool: Sprite[] = [];
   private partTexCache = new Map<number, PartTex>(); // por resolución; no se destruyen (ver buildTexture)
-  private partOut: PState = { x: 0, y: 0, size: 0, flat: 1, rot: 0, alpha: 0 };
+  private partOut: PState = { x: 0, y: 0, size: 0, flat: 1, rot: 0, alpha: 0, glow: 0 };
   private glowFilter: GlowFilter | null = null; // brillo de UN color (modo no sincronizado)
   private glowDistance = -1;
   private haloBlur: BlurFilter | null = null;       // brillo por nota (modo sincronizado):
@@ -335,12 +335,15 @@ export class Scene {
       dot: mk((g) => { g.circle(8, 8, 8).fill({ color: 0xffffff, alpha: 0.35 }); g.circle(8, 8, 6).fill(0xffffff); }),
       glow: mk((g) => { for (let k = 12; k >= 1; k--) g.circle(16, 16, (16 * k) / 12).fill({ color: 0xffffff, alpha: 0.07 }); }),
       star: mk((g) => g.poly([8, 0, 9.6, 6.4, 16, 8, 9.6, 9.6, 8, 16, 6.4, 9.6, 0, 8, 6.4, 6.4]).fill(0xffffff)),
-      ring: mk((g) => g.circle(16, 16, 15).stroke({ width: 2, color: 0xffffff })),
-      ringGlow: mk((g) => {
-        g.circle(16, 16, 13).stroke({ width: 6, color: 0xffffff, alpha: 0.18 });
-        g.circle(16, 16, 13).stroke({ width: 3, color: 0xffffff, alpha: 0.4 });
-        g.circle(16, 16, 13).stroke({ width: 1.5, color: 0xffffff });
+      // Chispa alargada: cola tenue a la izquierda, cabeza brillante a la derecha (apunta hacia +x)
+      streak: mk((g) => {
+        for (let i = 0; i < 16; i++) {
+          g.rect(i * 2, 0, 2, 4).fill({ color: 0xffffff, alpha: (0.25 * (i + 1)) / 16 });
+          g.rect(i * 2, 1, 2, 2).fill({ color: 0xffffff, alpha: (i + 1) / 16 });
+        }
       }),
+      // Tramo uniforme (para los rayos): se estira a lo largo y se gira
+      bar: mk((g) => { g.rect(0, 0, 8, 4).fill({ color: 0xffffff, alpha: 0.3 }); g.rect(0, 1, 8, 2).fill(0xffffff); }),
     };
   }
 
@@ -362,9 +365,9 @@ export class Scene {
     if (this.song && st.particles && this.fxAllowed) {
       const tx = this.partTextures();
       const type = st.particleType;
-      const main = type === 'ring' ? (st.particleGlow ? tx.ringGlow : tx.ring) : type === 'stars' ? tx.star : tx.dot;
-      const glowTex = type !== 'ring' && st.particleGlow ? tx.glow : null;
-      const rate = particleRate(st), life = st.particleLife, o = this.partOut;
+      const main = type === 'stars' ? tx.star : type === 'friction' ? tx.streak : type === 'electric' ? tx.bar : tx.dot;
+      const glowTex = st.particleGlow ? tx.glow : null;
+      const rate = particleRate(st), life = particleLifeFor(st), segs = particleSegments(st), o = this.partOut;
       const span = Math.max(1, this.range.high - this.range.low);
       let full = false;
       // Notas que suenan o terminaron hace menos de `life` segundos (aún les quedan partículas vivas)
@@ -376,38 +379,38 @@ export class Scene {
         const tint = noteTint(st, (n.midi - this.range.low) / span);
         const seed = Math.round(n.start * 1000);
         const cx = key.rect.x + key.rect.w / 2, vel = 0.6 + 0.4 * n.velocity;
-        for (let j = first; j <= last; j++) {
+        for (let j = first; j <= last && !full; j++) {
           const age = t - (n.start + j / rate);
           if (age < 0 || age >= life) continue;
-          if (used >= MAX_PARTICLES) { full = true; break; }
-          computeParticle(o, st, cx, key.rect.w, this.hitY, seed, n.midi, j, age);
-          const a = Math.max(0, Math.min(1, o.alpha * vel));
-          const sp = this.getPartSprite(this.partPool, this.partDotLayer, used);
-          if (sp.texture !== main) sp.texture = main;
-          const sc = o.size / main.width;
-          sp.visible = true;
-          sp.position.set(o.x, o.y);
-          sp.rotation = o.rot;
-          sp.scale.set(sc, sc * o.flat);
-          sp.tint = tint;
-          sp.alpha = a;
-          const gs = this.partGlowPool[used];
-          if (glowTex) {
-            const g2 = this.getPartSprite(this.partGlowPool, this.partGlowLayer, used);
-            if (g2.texture !== glowTex) g2.texture = glowTex;
-            const gsc = (o.size * 3.5) / glowTex.width;
-            g2.visible = true;
-            g2.position.set(o.x, o.y);
-            g2.scale.set(gsc);
-            g2.tint = tint;
-            g2.alpha = a * 0.6;
-          } else if (gs) gs.visible = false;
-          used++;
+          for (let s = 0; s < segs; s++) {
+            if (used >= MAX_PARTICLES) { full = true; break; }
+            if (!computeParticle(o, st, cx, key.rect.w, this.hitY, seed, n.midi, j, age, s)) continue;
+            const a = Math.max(0, Math.min(1, o.alpha * vel));
+            const sp = this.getPartSprite(this.partPool, this.partDotLayer, used);
+            if (sp.texture !== main) sp.texture = main;
+            sp.visible = true;
+            sp.position.set(o.x, o.y);
+            sp.rotation = o.rot;
+            sp.scale.set(o.size / main.width, (o.size * o.flat) / main.height);
+            sp.tint = tint;
+            sp.alpha = a;
+            if (glowTex && o.glow > 0) {
+              const gs = this.getPartSprite(this.partGlowPool, this.partGlowLayer, used);
+              if (gs.texture !== glowTex) gs.texture = glowTex;
+              gs.visible = true;
+              gs.position.set(o.x, o.y);
+              gs.scale.set(o.glow / glowTex.width);
+              gs.tint = tint;
+              gs.alpha = a * 0.6;
+            } else if (this.partGlowPool[used]) this.partGlowPool[used].visible = false;
+            used++;
+          }
         }
       }
     }
     for (let i = used; i < this.partPool.length; i++) this.partPool[i].visible = false;
-    for (let i = used; i < this.partGlowPool.length; i++) this.partGlowPool[i].visible = false;
+    // La pool de halos puede tener huecos (p. ej. en Estelas solo la cabeza lleva halo): se comprueba cada uno
+    for (let i = used; i < this.partGlowPool.length; i++) { const gs = this.partGlowPool[i]; if (gs) gs.visible = false; }
   }
 
   renderFrame(t: number) {

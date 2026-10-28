@@ -4,7 +4,7 @@ import { t } from '../../i18n';
 const HEX = /^#[0-9a-f]{6}$/i;
 const ENUMS: Partial<Record<keyof Style, string[]>> = {
   colorMode: ['solid', 'pitch'], noteFill: ['solid', 'outline'],
-  particleType: ['sparks', 'embers', 'ring', 'stars'],
+  particleType: ['sparks', 'embers', 'trails', 'stars', 'friction', 'electric'],
 };
 const LIMITS: Partial<Record<keyof Style, [number, number]>> = {
   noteRadius: [0, 24], noteGap: [0, 8], noteOpacity: [0.2, 1],

@@ -73,12 +73,12 @@ export function Toggle(p: { label: string; value: boolean; onChange: (v: boolean
 }
 
 export function Segmented<T extends string>(p: {
-  label: string; value: T; options: { value: T; text: string }[]; onChange: (v: T) => void;
+  label: string; value: T; options: { value: T; text: string }[]; onChange: (v: T) => void; wrap?: boolean;
 }) {
   return (
     <div className="ctl">
       <div className="ctl-head"><span>{p.label}</span></div>
-      <div className="seg">
+      <div className={p.wrap ? 'seg wrap' : 'seg'}>
         {p.options.map((o) => (
           <button key={o.value} className={o.value === p.value ? 'on' : ''} onClick={() => p.onChange(o.value)}>
             {o.text}
