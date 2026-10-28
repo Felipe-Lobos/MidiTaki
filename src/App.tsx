@@ -4,6 +4,9 @@ import { SidePanel } from './ui/panels/SidePanel';
 import { NoticeBar } from './ui/NoticeBar.tsx';
 import { AboutDialog } from './ui/AboutDialog.tsx';
 import { ExportDialog } from './ui/export/ExportDialog';
+import { DropOverlay, EmptyCard, pickMidi } from './ui/DropLayer';
+import { useMidiDrop } from './ui/useMidiDrop';
+import { useShortcuts } from './ui/useShortcuts';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
 import { useSettingsStore } from './store/settingsStore';
@@ -27,13 +30,15 @@ function Unsupported() {
 }
 
 function Main() {
-  const { song, fileName, rangeKey, loadFile, setRangeKey } = useSongStore();
-  const { time, playing, audioStatus } = usePlaybackStore();
+  const { song, fileName, rangeKey, setRangeKey } = useSongStore();
+  const { time, playing, audioStatus, muted, setMuted } = usePlaybackStore();
   const { previewFx, setPreviewFx, format, setFormat } = useSettingsStore();
   const leadTail = useSettingsStore((s) => s.previewLeadTail);
   const fall = useStyleStore((s) => s.style.fallSeconds);
   const tail = useExportStore((s) => s.tail);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const dragging = useMidiDrop();
+  useShortcuts(!aboutOpen);
   const b = song ? previewBounds(song, leadTail, fall, tail) : { min: 0, max: 1 };
 
   useEffect(() => {
@@ -54,14 +59,7 @@ function Main() {
         <strong className="brand">{t.app.name}</strong>
         <label className="btn">
           {t.top.loadMidi}
-          <input type="file" accept=".mid,.midi" hidden
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              e.target.value = ''; // permite volver a elegir el mismo archivo
-              if (!file) return;
-              transport.init().catch(() => {}); // crea el AudioContext dentro de un gesto del usuario
-              void loadFile(file);
-            }} />
+          <input type="file" accept=".mid,.midi" hidden onChange={pickMidi} />
         </label>
         <span className="muted">{fileName || t.top.noFile}</span>
         <span className="muted">{t.audioStatus[audioStatus]}</span>
@@ -89,20 +87,27 @@ function Main() {
       <NoticeBar />
 
       <div className="main">
-        <PreviewCanvas />
+        <div className="stage">
+          <PreviewCanvas />
+          {!song && <EmptyCard />}
+        </div>
         <SidePanel />
       </div>
 
       <footer className="transport">
-        <button className="btn" disabled={!song || audioStatus === 'loading'} onClick={() => transport.toggle()}>
+        <button className="btn" title={t.transport.playTitle} disabled={!song || audioStatus === 'loading'} onClick={() => transport.toggle()}>
           {playing ? t.transport.pause : t.transport.play}
         </button>
         <input type="range" min={b.min} max={b.max} step={0.01}
           value={time} disabled={!song}
           onChange={(e) => transport.seek(Number(e.target.value))} />
         <span className="muted time">{time.toFixed(2)} / {(song ? b.max : 0).toFixed(2)} s</span>
+        <button className="btn" title={t.transport.muteTitle} onClick={() => setMuted(!muted)}>
+          {muted ? t.transport.unmute : t.transport.mute}
+        </button>
       </footer>
 
+      {dragging && <DropOverlay fileName={fileName} />}
       <ExportDialog />
       <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
     </div>

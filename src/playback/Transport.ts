@@ -73,9 +73,15 @@ class Transport {
     const ctx = new AudioContext({ latencyHint: 'interactive' });
     this.ctx = ctx;
     this.bus = createMasterBus(ctx, useSettingsStore.getState().volume);
-    useSettingsStore.subscribe((s) => {
-      if (this.bus) this.bus.gain.setTargetAtTime(MASTER_BASE * s.volume, ctx.currentTime, 0.02);
-    });
+    // Ganancia = volumen general × (0 si está silenciado). El silencio es solo del preview: el export no lo usa.
+    const applyGain = () => {
+      if (!this.bus) return;
+      const gain = MASTER_BASE * useSettingsStore.getState().volume * (store().muted ? 0 : 1);
+      this.bus.gain.setTargetAtTime(gain, ctx.currentTime, 0.02);
+    };
+    useSettingsStore.subscribe(applyGain);
+    usePlaybackStore.subscribe((s, prev) => { if (s.muted !== prev.muted) applyGain(); });
+    if (store().muted) applyGain();
     store().setAudioStatus('loading');
     this.reportSamples(await this.sampler.load(ctx));
   }

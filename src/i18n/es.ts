@@ -14,7 +14,23 @@ export const es = {
     idle: '', loading: 'Cargando piano…', ready: 'Piano listo',
     fallback: 'Sin muestras de piano: sonido de prueba', error: 'Error de audio',
   },
-  transport: { play: 'Play', pause: 'Pausa' },
+  transport: {
+    play: 'Play', pause: 'Pausa', playTitle: 'Espacio',
+    mute: '🔊 Sonido', unmute: '🔇 Silenciado',
+    muteTitle: 'Silenciar o activar el sonido de la vista previa (M). No afecta al audio del video exportado.',
+  },
+  drop: {
+    title: 'Arrastra un archivo MIDI aquí', or: 'o', choose: 'Elegir archivo MIDI',
+    steps: [
+      'Carga un MIDI de piano (.mid o .midi).',
+      'Pulsa Play y ajusta colores, efectos y partículas en el panel.',
+      'Exporta tu video MP4 a 60 fps, con o sin audio.',
+    ],
+    privacy: 'Todo se procesa en tu navegador: tu archivo no se sube a ningún servidor.',
+    keys: 'Atajos: Espacio = play/pausa · ← → = ±2 s (con Shift ±10 s) · M = silenciar',
+    overlay: 'Suelta el archivo MIDI para cargarlo',
+    overlayReplace: (name: string) => `Suelta para reemplazar «${name}»`,
+  },
 
   tabs: { notes: 'Notas', keyboard: 'Teclado', scene: 'Escena', effects: 'Efectos', audio: 'Audio', presets: 'Presets' },
   notes: {
@@ -107,6 +123,7 @@ export const es = {
   },
 
   notices: {
+    notMidi: 'Ese archivo no parece un MIDI. Usa un archivo .mid o .midi.',
     webCodecs: 'Tu navegador no admite WebCodecs: puedes editar y reproducir, pero no exportar video. Usa Chrome o Edge actualizados.',
     webAudio: 'Tu navegador no admite Web Audio: no habrá sonido ni exportación de audio.',
     gfxInit: 'No se pudieron iniciar los gráficos (WebGL). Revisa que la aceleración por hardware esté activada en el navegador.',
