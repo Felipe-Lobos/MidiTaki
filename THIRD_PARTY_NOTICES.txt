@@ -1,0 +1,28 @@
+MidiTaki — Avisos de terceros
+=============================
+
+PIANO (muestras de audio)
+  Salamander Grand Piano V3, de Alexander Holm.
+  Licencia: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+  https://creativecommons.org/licenses/by/3.0/
+  Origen: https://archive.org/details/SalamanderGrandPianoV3
+  Empaquetado vía el paquete npm @audio-samples/piano-velocity10.
+  Cambios: las muestras se reproducen afinadas (cambio de velocidad de reproducción),
+  con volumen según la velocity de cada nota, y se mezclan en el audio de los videos exportados.
+  Nota: el paquete npm que las distribuye declara su propia licencia (MIT para el empaquetado);
+  la licencia de las grabaciones sigue siendo la del autor original.
+
+LIBRERÍAS
+  Mediabunny ................ MPL-2.0   https://mediabunny.dev
+                                         Código: https://github.com/Vanilagy/mediabunny
+                                         Texto de la licencia: https://www.mozilla.org/MPL/2.0/
+  Pixi.js ................... MIT       https://pixijs.com
+  pixi-filters .............. MIT       https://github.com/pixijs/filters
+  React / React DOM ......... MIT       https://react.dev
+  Zustand ................... MIT       https://github.com/pmndrs/zustand
+  react-colorful ............ MIT       https://github.com/omgovich/react-colorful
+  @tonejs/midi .............. MIT       https://github.com/Tonejs/Midi
+
+Este archivo no es asesoría legal. Antes de publicar, comprueba las licencias reales con:
+  npx license-checker --production --summary
+y revisa los textos completos de cada licencia.
