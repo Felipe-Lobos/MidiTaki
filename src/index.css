@@ -76,3 +76,10 @@ select.inline { margin-left: 0; }
 .about ul { margin: 0; padding-left: 18px; }
 .credit { display: flex; gap: 10px; align-items: center; }
 .credit code { flex: 1; background: #0f0f12; padding: 8px; border-radius: 8px; font-size: 12px; }
+
+/* Campo de color: cuadro (abre el selector) + texto hexadecimal editable */
+.swatch { cursor: text; }
+.swatch:focus-within { outline: 1px solid #ffffff55; }
+.swatch .sw-btn { display: flex; background: none; border: 0; padding: 0; cursor: pointer; }
+.swatch input.hex { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: inherit; font: inherit; }
+.swatch input.hex.bad { color: #ff7b7b; }

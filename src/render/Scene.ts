@@ -1,4 +1,4 @@
-import { Application, ColorMatrixFilter, Container, Graphics, NineSliceSprite, Rectangle, Texture } from 'pixi.js';
+import { Application, BlurFilter, ColorMatrixFilter, Container, Graphics, NineSliceSprite, Rectangle, Texture } from 'pixi.js';
 import { GlowFilter } from 'pixi-filters';
 import type { Song } from '../core/midi/types';
 import { buildKeyboardLayout, type KeyRange, type KeyRect } from '../core/keyboard/layout';
@@ -23,14 +23,15 @@ export class Scene {
   private hitLine = new Graphics();
   private glowFilter: GlowFilter | null = null; // brillo de UN color (modo no sincronizado)
   private glowDistance = -1;
+  private haloBlur: BlurFilter | null = null;       // brillo por nota (modo sincronizado):
+  private haloGain: ColorMatrixFilter | null = null;  // desenfoque + ganancia sobre la capa de siluetas
   private fxAllowed = true; // El EXPORT nunca lo desactiva: siempre calidad completa
   private pool: NineSliceSprite[] = [];
   private haloPool: NineSliceSprite[] = [];
   private keys = new Map<number, KeyView>();
   private texture!: Texture;
   private haloTex!: Texture;
-  private haloPad = 0;
-  private texCache = new Map<string, { tex: Texture; halo: Texture; pad: number }>();
+  private texCache = new Map<string, { tex: Texture; halo: Texture }>();
   private texRes = 1; // resolución con la que se generaron las texturas
 
   private song: Song | null = null;
@@ -79,8 +80,7 @@ export class Scene {
     this.style = style;
     this.app.renderer.background.color = style.background;
     if (old.noteRadius !== style.noteRadius || old.noteFill !== style.noteFill
-      || old.outlineWidth !== style.outlineWidth || old.relief !== style.relief
-      || old.glowRadius !== style.glowRadius) this.buildTexture();
+      || old.outlineWidth !== style.outlineWidth || old.relief !== style.relief) this.buildTexture();
     this.applyFx();
     this.rebuildKeys();
     this.renderFrame(this.lastT);
@@ -107,6 +107,7 @@ export class Scene {
 
   private applyFx() {
     const st = this.style;
+    this.applyHaloFx();
     this.fxLayer.filterArea = new Rectangle(0, 0, this.w, this.h);
     // Brillo de un solo color: GlowFilter sobre toda la capa (solo si NO se sincroniza)
     if (!(st.glow && !st.syncColors && this.fxAllowed)) { this.fxLayer.filters = null; return; }
@@ -121,6 +122,28 @@ export class Scene {
     this.glowFilter.outerStrength = st.glowStrength * 2;
     this.glowFilter.color = hexToNum(st.glowColor);
     this.fxLayer.filters = [this.glowFilter];
+  }
+
+  /**
+   * Brillo por nota (modo sincronizado): la capa de siluetas se desenfoca con BlurFilter de Pixi y se
+   * multiplica por una ganancia (intensidad). Cada silueta conserva el color de su nota, y como no hay
+   * "hueco" que recortar, no puede aparecer una línea oscura entre la nota y su halo.
+   */
+  private applyHaloFx() {
+    const st = this.style;
+    if (!this.haloOn) { this.haloLayer.filters = null; return; }
+    if (!this.haloBlur || !this.haloGain) {
+      this.haloBlur = new BlurFilter({ strength: 1, quality: 4 });
+      this.haloGain = new ColorMatrixFilter();
+    }
+    const res = this.app.renderer.resolution;
+    this.haloBlur.strength = st.glowRadius * 0.5;
+    this.haloBlur.resolution = res; // sin esto el filtro iría a 1× y saldría borroso
+    this.haloGain.resolution = res;
+    const k = st.glowStrength * 1.5;
+    this.haloGain.matrix = [k, 0, 0, 0, 0, 0, k, 0, 0, 0, 0, 0, k, 0, 0, 0, 0, 0, k, 0];
+    this.haloLayer.filterArea = new Rectangle(0, 0, this.w, this.h);
+    this.haloLayer.filters = [this.haloBlur, this.haloGain];
   }
 
   private get hitY() { return this.h * (1 - this.style.keyboardRatio); }
@@ -142,12 +165,12 @@ export class Scene {
     const st = this.style, res = this.app.renderer.resolution;
     this.texRes = res;
 
-    const key = [st.noteRadius, st.noteFill, st.outlineWidth, st.relief, st.glowRadius, res].join('|');
+    const key = [st.noteRadius, st.noteFill, st.outlineWidth, st.relief, res].join('|');
     let entry = this.texCache.get(key);
     if (entry) {
       this.texCache.delete(key); // reinsertar = marcar como "usada hace poco"
     } else {
-      entry = { tex: this.makeNoteTexture(), ...this.makeHaloTexture() };
+      entry = { tex: this.makeNoteTexture(), halo: this.makeSilhouetteTexture() };
       if (this.texCache.size >= 24) {
         for (const [oldKey, old] of this.texCache) { // la más antigua
           old.tex.destroy(true);
@@ -160,7 +183,6 @@ export class Scene {
     this.texCache.set(key, entry);
     this.texture = entry.tex;
     this.haloTex = entry.halo;
-    this.haloPad = entry.pad;
   }
 
   /** Textura blanca de la nota (9-slice, se tiñe con tint). */
@@ -183,21 +205,19 @@ export class Scene {
     return tex;
   }
 
-  /** Halo suave: capas concéntricas con poca opacidad (sin filtros → barato y con el color de cada nota). */
-  private makeHaloTexture(): { halo: Texture; pad: number } {
-    const { noteRadius: r, glowRadius } = this.style;
-    const pad = Math.max(2, Math.round(glowRadius));
+  /** Silueta blanca de la nota (sin relieve): es lo que se desenfoca para crear el brillo. */
+  private makeSilhouetteTexture(): Texture {
+    const { noteRadius: r, noteFill, outlineWidth: ow } = this.style;
     const s = this.inset * 4;
-    const N = 10, a = 0.1;
     const g = new Graphics();
-    for (let k = N; k >= 1; k--) {
-      const d = (pad * k) / N;
-      g.roundRect(pad - d, pad - d, s + 2 * d, s + 2 * d, r + d).fill({ color: 0xffffff, alpha: a });
-      g.roundRect(pad + 0.5, pad + 0.5, s - 1, s - 1, Math.max(r - 0.5, 0)).cut(); // el interior de la nota no brilla
+    if (noteFill === 'outline') {
+      g.roundRect(ow / 2, ow / 2, s - ow, s - ow, Math.max(r - ow / 2, 0)).stroke({ width: ow, color: 0xffffff });
+    } else {
+      g.roundRect(0, 0, s, s, r).fill(0xffffff);
     }
-    const halo = this.app.renderer.generateTexture(g);
+    const tex = this.app.renderer.generateTexture(g);
     g.destroy();
-    return { halo, pad };
+    return tex;
   }
 
   private rebuildKeys() {
@@ -275,9 +295,8 @@ export class Scene {
 
   private getHalo(i: number): NineSliceSprite {
     if (!this.haloPool[i]) {
-      const e = this.inset + this.haloPad;
+      const e = this.inset;
       const sp = new NineSliceSprite({ texture: this.haloTex, leftWidth: e, rightWidth: e, topHeight: e, bottomHeight: e });
-      sp.blendMode = 'add';
       this.haloLayer.addChild(sp);
       this.haloPool[i] = sp;
     }
@@ -292,7 +311,6 @@ export class Scene {
     const span = Math.max(1, this.range.high - this.range.low);
     const active = new Map<number, number>(); // midi → color de la tecla pulsada
     const halos = this.haloOn;
-    const pad = this.haloPad;
     let used = 0;
     this.sparks.clear();
 
@@ -329,11 +347,11 @@ export class Scene {
         if (halos) {
           const hs = this.getHalo(used);
           hs.visible = true;
-          hs.position.set(x - pad, ny - pad);
-          hs.width = nw + 2 * pad;
-          hs.height = nh + 2 * pad;
+          hs.position.set(x, ny);
+          hs.width = nw;
+          hs.height = nh;
           hs.tint = tint;
-          hs.alpha = Math.min(1, st.glowStrength / 1.5) * alpha;
+          hs.alpha = alpha;
         }
         used++;
 

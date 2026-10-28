@@ -28,15 +28,37 @@ export function Slider(p: {
   );
 }
 
+/** Acepta "#rgb", "rgb", "#rrggbb" o "rrggbb" y devuelve "#rrggbb" (minúsculas), o null si no es válido. */
+function normalizeHex(raw: string): string | null {
+  const v = raw.trim().replace(/^#/, '').toLowerCase();
+  if (/^[0-9a-f]{3}$/.test(v)) return '#' + v.split('').map((c) => c + c).join('');
+  if (/^[0-9a-f]{6}$/.test(v)) return '#' + v;
+  return null;
+}
+
 export function ColorField(p: { label: string; value: string; def: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState<string | null>(null); // texto en edición; null = mostrar el valor real
+  const shown = draft ?? p.value;
+  const bad = draft !== null && normalizeHex(draft) === null;
   return (
     <div className="ctl">
-      <Head label={p.label} changed={p.value !== p.def} onReset={() => p.onChange(p.def)} />
-      <button className="swatch" onClick={() => setOpen((o) => !o)}>
-        <i style={{ background: p.value }} /> <span className="num">{p.value}</span>
-      </button>
-      {open && <HexColorPicker color={p.value} onChange={p.onChange} />}
+      <Head label={p.label} changed={p.value !== p.def} onReset={() => { setDraft(null); p.onChange(p.def); }} />
+      <div className="swatch">
+        <button type="button" className="sw-btn" title={t.common.pickColor} onClick={() => setOpen((o) => !o)}>
+          <i style={{ background: p.value }} />
+        </button>
+        <input className={bad ? 'hex num bad' : 'hex num'} value={shown} maxLength={7} spellCheck={false}
+          aria-label={p.label}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            const hex = normalizeHex(e.target.value);
+            if (hex) p.onChange(hex); // solo se aplica cuando el valor ya es válido
+          }}
+          onBlur={() => setDraft(null)} // si quedó incompleto, vuelve al último valor válido
+          onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }} />
+      </div>
+      {open && <HexColorPicker color={p.value} onChange={(v) => { setDraft(null); p.onChange(v); }} />}
     </div>
   );
 }
