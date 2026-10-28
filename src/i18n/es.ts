@@ -41,6 +41,13 @@ export const es = {
     relief: 'Relieve 2.5D (notas y teclas)',
     note: 'El interruptor «Efectos» de la barra superior solo afecta a la vista previa; el video exportado siempre usa calidad completa.',
   },
+  particles: {
+    enable: 'Partículas al tocar la tecla',
+    type: 'Efecto', sparks: 'Chispas', embers: 'Brasas', ring: 'Anillos', stars: 'Estrellas',
+    amount: 'Cantidad (por segundo y nota)', size: 'Tamaño', speed: 'Velocidad', life: 'Duración',
+    spread: 'Dispersión', glow: 'Brillo en las partículas',
+    note: 'Toman el color de su nota. Con «Efectos» apagado en la barra superior no se ven en la vista previa; el video exportado las incluye siempre.',
+  },
   audio: {
     volume: 'Volumen general',
     note: 'Afecta a la reproducción y al audio exportado. No se guarda en los presets.',

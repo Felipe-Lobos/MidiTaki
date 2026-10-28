@@ -89,6 +89,21 @@ export function SidePanel() {
           {style.glow && num('glowStrength', t.effects.glowStrength, 0, 3)}
           {style.glow && num('glowRadius', t.effects.glowRadius, 2, 24, 1, ' px')}
           {num('relief', t.effects.relief, 0, 1)}
+          {bool('particles', t.particles.enable)}
+          {style.particles && <>
+            <Segmented label={t.particles.type} value={style.particleType} onChange={(v) => patch({ particleType: v })}
+              options={[
+                { value: 'sparks', text: t.particles.sparks }, { value: 'embers', text: t.particles.embers },
+                { value: 'ring', text: t.particles.ring }, { value: 'stars', text: t.particles.stars },
+              ]} />
+            {num('particleAmount', t.particles.amount, 2, 120, 1, ' /s')}
+            {num('particleSize', t.particles.size, 1, 12, 0.5, ' px')}
+            {num('particleSpeed', t.particles.speed, 40, 600, 10, ' px/s')}
+            {num('particleLife', t.particles.life, 0.2, 3, 0.1, ' s')}
+            {style.particleType !== 'ring' && num('particleSpread', t.particles.spread, 0, 1)}
+            {bool('particleGlow', t.particles.glow)}
+            <p className="muted">{t.particles.note}</p>
+          </>}
           <p className="muted">{t.effects.note}</p>
         </>}
 

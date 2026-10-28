@@ -1,3 +1,5 @@
+export type ParticleType = 'sparks' | 'embers' | 'ring' | 'stars';
+
 // TODA la apariencia vive aquí: un objeto plano y serializable (colores en '#rrggbb').
 export interface Style {
   version: 1;
@@ -31,6 +33,15 @@ export interface Style {
   glowColor: string;            // GlowFilter usa UN color para todo el brillo
   glowStrength: number;
   glowRadius: number;
+  // Partículas (nacen de forma continua mientras la nota toca la tecla; toman el color de su nota)
+  particles: boolean;
+  particleType: ParticleType;
+  particleAmount: number;       // partículas por segundo y por nota (se ajusta según el efecto)
+  particleSize: number;         // px
+  particleSpeed: number;        // px/s
+  particleLife: number;         // s que dura cada partícula
+  particleSpread: number;       // 0 = vertical … 1 = abanico de 180°
+  particleGlow: boolean;        // halo suave en cada partícula
   // Escena
   fallSeconds: number;          // segundos visibles = velocidad de caída
 }
@@ -64,9 +75,17 @@ export const defaultStyle: Style = {
   glowColor: '#4cc9f0',
   glowStrength: 1.2,
   glowRadius: 10,
+  particles: false,
+  particleType: 'sparks',
+  particleAmount: 30,
+  particleSize: 4,
+  particleSpeed: 240,
+  particleLife: 0.9,
+  particleSpread: 0.5,
+  particleGlow: true,
   fallSeconds: 3,
 };
 
 export type NumKey = { [K in keyof Style]: Style[K] extends number ? K : never }[keyof Style];
 export type ColorKey = 'background' | 'noteColor' | 'noteColor2' | 'whiteKey' | 'blackKey' | 'pressedColor' | 'hitLineColor' | 'glowColor' | 'octaveLineColor';
-export type BoolKey = 'velocityOpacity' | 'showHitLine' | 'glow' | 'syncColors' | 'showOctaveLines' | 'octaveLineAuto';
+export type BoolKey = 'velocityOpacity' | 'showHitLine' | 'glow' | 'syncColors' | 'showOctaveLines' | 'octaveLineAuto' | 'particles' | 'particleGlow';
