@@ -73,6 +73,12 @@ export function SidePanel() {
         {tab === 'scene' && <>
           {color('background', t.scene.background)}
           {num('fallSeconds', t.scene.fall, 1, 8, 0.1, ' s')}
+          {bool('showOctaveLines', t.scene.octaveLines)}
+          {style.showOctaveLines && <>
+            {bool('octaveLineAuto', t.scene.octaveAuto)}
+            {!style.octaveLineAuto && color('octaveLineColor', t.scene.octaveColor)}
+            {num('octaveLineOpacity', t.scene.octaveOpacity, 0.05, 1)}
+          </>}
           <Toggle label={t.scene.leadTail} value={previewLeadTail} onChange={setPreviewLeadTail} />
         </>}
 

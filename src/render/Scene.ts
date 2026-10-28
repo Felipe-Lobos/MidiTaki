@@ -4,7 +4,7 @@ import type { Song } from '../core/midi/types';
 import { buildKeyboardLayout, type KeyRange, type KeyRect } from '../core/keyboard/layout';
 import { visibleNotes } from '../core/timeline/visibleNotes';
 import type { Style } from '../core/style/schema';
-import { hexToNum, lerpColor, noteTint } from '../core/colors/colorMapping';
+import { contrastColor, hexToNum, lerpColor, noteTint } from '../core/colors/colorMapping';
 
 interface KeyView { rect: KeyRect; g: Graphics; pressTint: number | null }
 
@@ -14,6 +14,7 @@ const gray = (v: number) => Math.round(255 * v) * 0x010101;
 export class Scene {
   private app: Application;
   private style: Style;
+  private guides = new Graphics();    // líneas entre octavas (detrás de todo)
   private fxLayer = new Container();   // halos + notas + destellos
   private haloLayer = new Container(); // brillo por nota (modo sincronizado)
   private notesLayer = new Container();
@@ -42,7 +43,7 @@ export class Scene {
     this.app = app;
     this.style = style;
     this.fxLayer.addChild(this.haloLayer, this.notesLayer, this.sparks);
-    app.stage.addChild(this.fxLayer, this.keysLayer, this.hitLine);
+    app.stage.addChild(this.guides, this.fxLayer, this.keysLayer, this.hitLine);
     this.w = app.screen.width;
     this.h = app.screen.height;
     this.buildTexture();
@@ -215,9 +216,22 @@ export class Scene {
       this.keys.set(rect.midi, view);
       this.drawKey(view);
     }
+    this.drawGuides(layout);
     this.hitLine.clear();
     if (this.style.showHitLine)
       this.hitLine.rect(0, this.hitY - 1, this.w, 2).fill(hexToNum(this.style.hitLineColor));
+  }
+
+  /** Una línea vertical en el borde izquierdo de cada Do (límite entre octavas), desde arriba hasta el teclado. */
+  private drawGuides(layout: KeyRect[]) {
+    const st = this.style;
+    this.guides.clear();
+    if (!st.showOctaveLines) return;
+    const color = st.octaveLineAuto ? contrastColor(hexToNum(st.background)) : hexToNum(st.octaveLineColor);
+    for (const k of layout) {
+      if (k.black || k.midi % 12 !== 0 || k.x < 1) continue; // sin línea si el Do es la primera tecla
+      this.guides.rect(k.x - 0.5, 0, 1, this.hitY).fill({ color, alpha: st.octaveLineOpacity });
+    }
   }
 
   private drawKey(k: KeyView) {

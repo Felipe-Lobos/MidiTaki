@@ -32,6 +32,8 @@ export const es = {
   scene: {
     background: 'Fondo', fall: 'Segundos visibles (menos = más rápido)',
     leadTail: 'Mostrar entrada y cola en la vista previa',
+    octaveLines: 'Líneas entre octavas', octaveAuto: 'Color automático (según el fondo)',
+    octaveColor: 'Color de las líneas', octaveOpacity: 'Opacidad de las líneas',
   },
   effects: {
     glow: 'Brillo neón (glow)', sync: 'Sincronizar tecla y brillo con el color de la nota',

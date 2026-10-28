@@ -20,6 +20,10 @@ export interface Style {
   keyboardRatio: number;        // fracción de la altura
   showHitLine: boolean;
   hitLineColor: string;
+  showOctaveLines: boolean;     // líneas verticales entre octavas (en cada Do)
+  octaveLineAuto: boolean;      // color automático: claro u oscuro según el fondo
+  octaveLineColor: string;      // color manual (solo si octaveLineAuto = false)
+  octaveLineOpacity: number;
   // Efectos
   relief: number;               // 0 = plano … 1 = relieve 2.5D (notas y teclas)
   syncColors: boolean;          // tecla pulsada y brillo toman el color de SU nota
@@ -50,6 +54,10 @@ export const defaultStyle: Style = {
   keyboardRatio: 0.16,
   showHitLine: true,
   hitLineColor: '#ffffff',
+  showOctaveLines: false,
+  octaveLineAuto: true,
+  octaveLineColor: '#ffffff',
+  octaveLineOpacity: 0.2,
   relief: 0.6,
   syncColors: true,
   glow: true,
@@ -60,5 +68,5 @@ export const defaultStyle: Style = {
 };
 
 export type NumKey = { [K in keyof Style]: Style[K] extends number ? K : never }[keyof Style];
-export type ColorKey = 'background' | 'noteColor' | 'noteColor2' | 'whiteKey' | 'blackKey' | 'pressedColor' | 'hitLineColor' | 'glowColor';
-export type BoolKey = 'velocityOpacity' | 'showHitLine' | 'glow' | 'syncColors';
+export type ColorKey = 'background' | 'noteColor' | 'noteColor2' | 'whiteKey' | 'blackKey' | 'pressedColor' | 'hitLineColor' | 'glowColor' | 'octaveLineColor';
+export type BoolKey = 'velocityOpacity' | 'showHitLine' | 'glow' | 'syncColors' | 'showOctaveLines' | 'octaveLineAuto';
