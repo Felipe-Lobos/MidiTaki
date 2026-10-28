@@ -4,13 +4,14 @@ import { t } from '../../i18n';
 const HEX = /^#[0-9a-f]{6}$/i;
 const ENUMS: Partial<Record<keyof Style, string[]>> = {
   colorMode: ['solid', 'pitch'], noteFill: ['solid', 'outline'],
+  hitLineStyle: ['straight', 'neon', 'mist', 'fog', 'electric', 'static'],
   particleType: ['sparks', 'embers', 'trails', 'stars', 'friction', 'electric'],
 };
 const LIMITS: Partial<Record<keyof Style, [number, number]>> = {
   noteRadius: [0, 24], noteGap: [0, 8], noteOpacity: [0.2, 1],
   keyboardRatio: [0.08, 0.3], fallSeconds: [1, 8], keyPress: [0, 12],
   outlineWidth: [1, 8], relief: [0, 1], glowStrength: [0, 3], glowRadius: [2, 24],
-  octaveLineOpacity: [0.05, 1],
+  octaveLineOpacity: [0.05, 1], hitLineIntensity: [0, 2],
   particleAmount: [2, 120], particleSize: [1, 12], particleSpeed: [40, 600], particleLife: [0.2, 3], particleSpread: [0, 1],
 };
 

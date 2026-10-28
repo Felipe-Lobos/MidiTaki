@@ -45,7 +45,11 @@ export const es = {
     fit: 'Ajustar teclado automáticamente',
     white: 'Teclas blancas', black: 'Teclas negras', pressed: 'Tecla pulsada',
     height: 'Altura del teclado', press: 'Profundidad al pulsar', hitLine: 'Línea de impacto', hitColor: 'Color de la línea',
+    lineStyle: 'Estilo de la línea', lineIntensity: 'Intensidad del efecto',
+    pulse: 'Pulso con cada nota', flash: 'Destello al golpear la tecla',
+    lineNote: 'Con «Efectos» apagado en la barra superior, la vista previa muestra solo la línea simple; el video exportado incluye todo.',
   },
+  hitStyles: { straight: 'Recto', neon: 'Neón', mist: 'Bruma', fog: 'Niebla intensa', electric: 'Eléctrico', static: 'Estática' },
   scene: {
     background: 'Fondo', fall: 'Segundos visibles (menos = más rápido)',
     leadTail: 'Mostrar entrada y cola en la vista previa',

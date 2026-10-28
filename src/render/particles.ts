@@ -30,7 +30,7 @@ const TRAIL_SEGS = 8, BOLT_SEGS = 7;
 export const particleSegments = (st: Style) => (st.particleType === 'trails' ? TRAIL_SEGS : st.particleType === 'electric' ? BOLT_SEGS : 1);
 
 /** Hash de 3 enteros → número en [0, 1). */
-function hash01(a: number, b: number, c: number): number {
+export function hash01(a: number, b: number, c: number): number {
   let h = (Math.imul(a | 0, 0x9e3779b1) ^ Math.imul(b | 0, 0x85ebca6b) ^ Math.imul(c | 0, 0xc2b2ae35)) >>> 0;
   h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d);
   h ^= h >>> 12; h = Math.imul(h, 0x297a2d39);
@@ -102,12 +102,9 @@ export function computeParticle(
     case 'friction': { // chispas de metal: rayitas rápidas orientadas según su movimiento, con gravedad
       const u = age / L;
       const th = (r1 - 0.5) * spread * Math.PI;
-      // Formula con gravedad
-      //const vv = v * 1.3 * (0.8 + 0.9 * r2), g = (2.2 * vv) / L;
-      // Formula baja gravedad
-      const vv = v * 1.3 * (0.8 + 0.9 * r2), g = (0.5 * vv) / L;
+      const vv = v * 1.3 * (0.8 + 0.9 * r2), g = (2.2 * vv) / L;
       const vx = vv * Math.sin(th), vy0 = -vv * Math.cos(th), vy = vy0 + g * age;
-      out.x = cx + (r3 - 0.5) * kw * 0.9 + vx * age;
+      out.x = cx + (r3 - 0.5) * kw * 0.5 + vx * age;
       out.y = y0 + vy0 * age + 0.5 * g * age * age;
       out.rot = Math.atan2(vy, vx);
       out.size = Math.max(3, size * 1.2 + Math.hypot(vx, vy) * 0.05); // largo

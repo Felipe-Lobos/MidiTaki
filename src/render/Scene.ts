@@ -4,12 +4,14 @@ import type { Song } from '../core/midi/types';
 import { buildKeyboardLayout, type KeyRange, type KeyRect } from '../core/keyboard/layout';
 import { visibleNotes } from '../core/timeline/visibleNotes';
 import type { Style } from '../core/style/schema';
+import { HAZE_W, LINE_CFG, jaggedLine, makeBandCanvas, makeHazeCanvas } from './lineFx';
 import { computeParticle, particleLifeFor, particleRate, particleSegments, type PState } from './particles';
 import { contrastColor, hexToNum, lerpColor, noteTint } from '../core/colors/colorMapping';
 
 export type HitRegion = 'notes' | 'keyboard' | 'scene';
 
 interface PartTex { dot: Texture; glow: Texture; star: Texture; streak: Texture; bar: Texture }
+const MAX_FLASHES = 96;  // destellos de tecla a la vez
 const MAX_PARTICLES = 900; // tope de partículas dibujadas a la vez (protege tablets y notas muy densas)
 
 interface KeyView { rect: KeyRect; g: Graphics; pressTint: number | null }
@@ -26,6 +28,16 @@ export class Scene {
   private notesLayer = new Container();
   private sparks = new Graphics();     // destello en la línea de impacto
   private keysLayer = new Container();
+  private lineFx = new Container();    // bruma, borde luminoso, línea quebrada y destellos de la línea de impacto
+  private hazeTex!: Texture;
+  private hazeLayer1 = new Container(); // cada capa de bruma = varios sprites en fila (ver layoutHaze)
+  private hazeLayer2 = new Container();
+  private hazePool1: Sprite[] = [];
+  private hazePool2: Sprite[] = [];
+  private band!: Sprite;
+  private bolt = new Graphics();
+  private flashPool: Sprite[] = [];
+  private jagBuf: number[] = [];
   private hitLine = new Graphics();
   private particleLayer = new Container(); // partículas: por encima del teclado
   private partGlowLayer = new Container();
@@ -57,10 +69,15 @@ export class Scene {
     this.app = app;
     this.style = style;
     this.fxLayer.addChild(this.haloLayer, this.notesLayer, this.sparks);
-    app.stage.addChild(this.guides, this.fxLayer, this.keysLayer, this.hitLine, this.particleLayer);
+    app.stage.addChild(this.guides, this.fxLayer, this.keysLayer, this.lineFx, this.hitLine, this.particleLayer);
     this.particleLayer.addChild(this.partGlowLayer, this.partDotLayer);
     this.w = app.screen.width;
     this.h = app.screen.height;
+    this.hazeTex = Texture.from(makeHazeCanvas());
+    this.band = new Sprite(Texture.from(makeBandCanvas()));
+    this.band.anchor.set(0.5);
+    this.band.blendMode = 'add';
+    this.lineFx.addChild(this.hazeLayer1, this.hazeLayer2, this.band, this.bolt);
     this.buildTexture();
     this.rebuildKeys();
     this.applyFx();
@@ -70,6 +87,7 @@ export class Scene {
   setEffectsEnabled(on: boolean) {
     this.fxAllowed = on;
     this.applyFx();
+    this.drawHitLine();
     this.renderFrame(this.lastT);
   }
 
@@ -251,9 +269,122 @@ export class Scene {
       this.drawKey(view);
     }
     this.drawGuides(layout);
+    this.drawHitLine();
+  }
+
+  /** Línea recta nítida. Los estilos bruma, niebla, eléctrico y estática dibujan la suya (en renderLineFx). */
+  private drawHitLine() {
+    const st = this.style;
     this.hitLine.clear();
-    if (this.style.showHitLine)
-      this.hitLine.rect(0, this.hitY - 1, this.w, 2).fill(hexToNum(this.style.hitLineColor));
+    if (!st.showHitLine) return;
+    const cfg = LINE_CFG[st.hitLineStyle];
+    if (this.fxAllowed && !cfg.crisp) return;
+    const c = hexToNum(st.hitLineColor);
+    this.hitLine.rect(0, this.hitY - 1, this.w, 2).fill(this.fxAllowed && st.hitLineStyle === 'neon' ? lerpColor(c, 0xffffff, 0.55) : c);
+  }
+
+  /**
+   * Una capa de bruma: la textura (continua en horizontal) se coloca varias veces en fila y se desplaza `scroll` px.
+   * Son sprites normales, SIN repetición vertical: con un TilingSprite el filtrado mezclaba el borde de arriba
+   * con el de abajo y dibujaba una raya horizontal al final de la bruma. h = 0 oculta la capa.
+   */
+  private layoutHaze(pool: Sprite[], layer: Container, h: number, scaleX: number, scroll: number, color: number, alpha: number) {
+    const tw = HAZE_W * scaleX;
+    const n = h > 0 ? Math.ceil(this.w / tw) + 1 : 0;
+    const first = -(((scroll % tw) + tw) % tw);
+    for (let i = 0; i < Math.max(n, pool.length); i++) {
+      if (i >= n) { pool[i].visible = false; continue; }
+      let sp = pool[i];
+      if (!sp) {
+        sp = new Sprite(this.hazeTex);
+        sp.blendMode = 'add';
+        layer.addChild(sp);
+        pool[i] = sp;
+      }
+      sp.visible = true;
+      sp.position.set(first + i * tw, this.hitY + 2 - h);
+      sp.width = tw; // sin solape entre vecinos: en aditivo un solape dibujaría rayas verticales
+      sp.height = h;
+      sp.tint = color;
+      sp.alpha = alpha;
+    }
+  }
+
+  /**
+   * Efectos de la línea de impacto, todos función del tiempo: bruma que se desplaza, borde luminoso,
+   * línea quebrada, pulso de toda la línea con cada nota y destello de luz en cada tecla que golpea.
+   */
+  private renderLineFx(t: number) {
+    const st = this.style;
+    const on = st.showHitLine && this.fxAllowed;
+    this.lineFx.visible = on;
+    if (!on) return;
+    const cfg = LINE_CFG[st.hitLineStyle];
+    const I = st.hitLineIntensity, color = hexToNum(st.hitLineColor), hitY = this.hitY, W = this.w;
+
+    // Notas que acaban de golpear la tecla (o siguen sonando): pulso y destellos
+    let pulse = 0, flashes = 0;
+    if (this.song && (st.hitPulse || st.hitFlash)) {
+      const glow = this.partTextures().glow;
+      for (const n of visibleNotes(this.song, t - 0.6, t)) {
+        const age = t - n.start;
+        if (age < 0) continue;
+        const end = n.start + n.duration;
+        const burst = Math.exp(-age / 0.14) * (0.5 + 0.5 * n.velocity);
+        if (st.hitPulse) pulse = 1 - (1 - pulse) * (1 - burst * 0.8);
+        if (!st.hitFlash || flashes >= MAX_FLASHES) continue;
+        const key = this.keys.get(n.midi);
+        const level = burst + 0.28 * (t < end ? 1 : Math.exp(-(t - end) / 0.12)); // golpe + brillo mientras suena
+        if (!key || level < 0.02) continue;
+        if (!this.flashPool[flashes]) {
+          const f = new Sprite(glow);
+          f.anchor.set(0.5);
+          f.blendMode = 'add';
+          this.lineFx.addChild(f);
+          this.flashPool[flashes] = f;
+        }
+        const f = this.flashPool[flashes++];
+        if (f.texture !== glow) f.texture = glow;
+        const size = key.rect.w * 3 + 16;
+        f.visible = true;
+        f.position.set(key.rect.x + key.rect.w / 2, hitY - 1);
+        f.scale.set(size / glow.width, (size * 0.75) / glow.height);
+        f.tint = color;
+        f.alpha = Math.min(1, level * Math.max(I, 0.3));
+      }
+    }
+    for (let i = flashes; i < this.flashPool.length; i++) this.flashPool[i].visible = false;
+
+    // Bruma (una o dos capas que se desplazan despacio en sentidos contrarios)
+    const boost = 1 + 0.9 * pulse;
+    const a1 = cfg.hazeAlpha * I * boost * (0.9 + 0.1 * Math.sin(t * 1.7));
+    this.layoutHaze(this.hazePool1, this.hazeLayer1, cfg.haze, 1.6, t * 22, color, Math.min(1, a1));
+    const a2 = cfg.hazeAlpha * I * boost * 0.7 * (0.9 + 0.1 * Math.cos(t * 1.3));
+    this.layoutHaze(this.hazePool2, this.hazeLayer2, cfg.second ? cfg.haze * 0.75 : 0, 2.4, 90 - t * 14, color, Math.min(1, a2));
+
+    // Borde luminoso (neón) y/o aviso del pulso, en cualquier estilo
+    const bandAlpha = Math.min(1, (cfg.band + 0.9 * pulse) * Math.max(I, 0.3));
+    this.band.visible = bandAlpha > 0.01;
+    if (this.band.visible) {
+      this.band.position.set(W / 2, hitY);
+      this.band.width = W;
+      this.band.height = 22 * (1 + 0.6 * pulse);
+      this.band.tint = color;
+      this.band.alpha = bandAlpha;
+    }
+
+    // Línea quebrada (eléctrico / estática)
+    this.bolt.clear();
+    if (cfg.jag) {
+      const amp = (cfg.jag === 'electric' ? 9 : 2.6) * (1 + 0.8 * pulse), core = lerpColor(color, 0xffffff, 0.65);
+      jaggedLine(this.jagBuf, cfg.jag, t, W, hitY, amp, 0);
+      this.bolt.poly(this.jagBuf, false).stroke({ width: 3, color, alpha: Math.min(1, 0.3 * I * boost) });
+      this.bolt.poly(this.jagBuf, false).stroke({ width: 1.3, color: core, alpha: 0.95 });
+      if (cfg.jag === 'electric') { // segundo arco, más fino
+        jaggedLine(this.jagBuf, cfg.jag, t, W, hitY, amp * 0.7, 1);
+        this.bolt.poly(this.jagBuf, false).stroke({ width: 1, color, alpha: Math.min(1, 0.55 * I) });
+      }
+    }
   }
 
   /** Una línea vertical en el borde izquierdo de cada Do (límite entre octavas), desde arriba hasta el teclado. */
@@ -487,6 +618,7 @@ export class Scene {
       const tint = active.get(k.rect.midi) ?? null;
       if (tint !== k.pressTint) { k.pressTint = tint; this.drawKey(k); }
     }
+    this.renderLineFx(t);
     this.renderParticles(t);
   }
 }

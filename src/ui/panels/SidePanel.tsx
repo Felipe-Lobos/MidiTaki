@@ -67,7 +67,15 @@ export function SidePanel() {
           {num('keyboardRatio', t.keyboard.height, 0.08, 0.3)}
           {num('keyPress', t.keyboard.press, 0, 12, 1, ' px')}
           {bool('showHitLine', t.keyboard.hitLine)}
-          {style.showHitLine && color('hitLineColor', t.keyboard.hitColor)}
+          {style.showHitLine && <>
+            {color('hitLineColor', t.keyboard.hitColor)}
+            <Segmented label={t.keyboard.lineStyle} wrap value={style.hitLineStyle} onChange={(v) => patch({ hitLineStyle: v })}
+              options={(['straight', 'neon', 'mist', 'fog', 'electric', 'static'] as const).map((v) => ({ value: v, text: t.hitStyles[v] }))} />
+            {style.hitLineStyle !== 'straight' && num('hitLineIntensity', t.keyboard.lineIntensity, 0, 2, 0.05)}
+            {bool('hitPulse', t.keyboard.pulse)}
+            {bool('hitFlash', t.keyboard.flash)}
+            <p className="muted">{t.keyboard.lineNote}</p>
+          </>}
         </>}
 
         {tab === 'scene' && <>
