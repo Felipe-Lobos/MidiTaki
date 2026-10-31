@@ -21,6 +21,7 @@ export const es = {
     play: 'Play', pause: 'Pausa', playTitle: 'Espacio',
     mute: '🔊 Sonido', unmute: '🔇 Silenciado',
     muteTitle: 'Silenciar o activar el sonido de la vista previa (M). No afecta al audio del video exportado.',
+    restart: 'Volver al inicio', soundOn: 'Sonido activado', soundOff: 'Sonido silenciado',
   },
   drop: {
     title: 'Arrastra un archivo MIDI aquí', or: 'o', choose: 'Elegir archivo MIDI',
@@ -155,6 +156,8 @@ export const es = {
     longSong: (min: number) => `Esta pieza dura ${min} min: la exportación tardará y puede usar mucha memoria.`,
     restored: 'Ajustes restablecidos.',
   },
+
+  footer: { openSource: 'Free & Open Source', repo: 'GitHub', createdBy: 'Creado por' },
 
   unsupported: {
     title: 'Tu navegador no puede ejecutar MidiTaki',

@@ -65,6 +65,7 @@ export function PreviewCanvas() {
           app.renderer.resize(w, h, res);
           app.canvas.style.width = `${w * k}px`;
           app.canvas.style.height = `${h * k}px`;
+          host.closest<HTMLElement>('.viewer')?.style.setProperty('--canvas-w', `${w * k}px`); // el timeline usa este ancho
         };
         app.renderer.on('resize', (w: number, h: number) => scene.resize(w, h));
 

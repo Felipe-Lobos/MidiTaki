@@ -7,6 +7,8 @@ import { ExportDialog } from './ui/export/ExportDialog';
 import { DropOverlay, EmptyCard, pickMidi } from './ui/DropLayer';
 import { useMidiDrop } from './ui/useMidiDrop';
 import { useShortcuts } from './ui/useShortcuts';
+import { Timeline } from './ui/Timeline';
+import { Footer } from './ui/Footer';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
 import { useSettingsStore } from './store/settingsStore';
@@ -32,7 +34,7 @@ function Unsupported() {
 
 function Main() {
   const { song, fileName, rangeKey, setRangeKey } = useSongStore();
-  const { time, playing, audioStatus, muted, setMuted } = usePlaybackStore();
+  const audioStatus = usePlaybackStore((s) => s.audioStatus);
   const { previewFx, setPreviewFx, format, setFormat } = useSettingsStore();
   const leadTail = useSettingsStore((s) => s.previewLeadTail);
   const fall = useStyleStore((s) => s.style.fallSeconds);
@@ -90,25 +92,17 @@ function Main() {
       <NoticeBar />
 
       <div className="main">
-        <div className="stage">
-          <PreviewCanvas />
-          {!song && <EmptyCard />}
+        <div className={`viewer ${format}`}>
+          <div className="stage">
+            <PreviewCanvas />
+            {!song && <EmptyCard />}
+          </div>
+          <Timeline min={b.min} max={b.max} />
         </div>
         <SidePanel />
       </div>
 
-      <footer className="transport">
-        <button className="btn" title={t.transport.playTitle} disabled={!song || audioStatus === 'loading'} onClick={() => transport.toggle()}>
-          {playing ? t.transport.pause : t.transport.play}
-        </button>
-        <input type="range" min={b.min} max={b.max} step={0.01}
-          value={time} disabled={!song}
-          onChange={(e) => transport.seek(Number(e.target.value))} />
-        <span className="muted time">{time.toFixed(2)} / {(song ? b.max : 0).toFixed(2)} s</span>
-        <button className="btn" title={t.transport.muteTitle} onClick={() => setMuted(!muted)}>
-          {muted ? t.transport.unmute : t.transport.mute}
-        </button>
-      </footer>
+      <Footer />
 
       {dragging && <DropOverlay fileName={fileName} />}
       <ExportDialog />
