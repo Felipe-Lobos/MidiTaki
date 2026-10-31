@@ -10,6 +10,7 @@ import { useShortcuts } from './ui/useShortcuts';
 import { Timeline } from './ui/Timeline';
 import { Footer } from './ui/Footer';
 import { InfoIcon, PanelIcon } from './ui/TopbarIcons';
+import { Logo } from './ui/Logo.tsx';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
 import { useSettingsStore } from './store/settingsStore';
@@ -61,7 +62,13 @@ function Main() {
   return (
     <div className="app">
       <header className="topbar">
-        <strong className="brand">{t.app.name}</strong>
+        <div className="brand" aria-label={t.app.name}>
+          <Logo />
+          <div className="brand-text">
+            <span className="brand-name">{t.app.brandMidi}<em>{t.app.brandTaki}</em></span>
+            <span className="brand-tag">{t.app.brandTag}</span>
+          </div>
+        </div>
 
         <div className="tb-file">
           <label className="btn">

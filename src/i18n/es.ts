@@ -1,6 +1,6 @@
 /** Todos los textos de la interfaz. Para añadir otro idioma: crear en.ts con la misma forma (tipo Strings). */
 export const es = {
-  app: { name: 'MidiTaki', tagline: 'De MIDI a video de notas en cascada' },
+  app: { name: 'MidiTaki', tagline: 'De MIDI a video de notas en cascada', brandMidi: 'MIDI', brandTaki: 'Taki', brandTag: 'Piano MIDI Visualizer' },
   common: { reset: 'Restablecer', cancel: 'Cancelar', close: 'Cerrar', retry: 'Reintentar', copied: 'Copiado', pickColor: 'Abrir selector de color',
     useNoteColor: 'Usar el color de la nota',
   },

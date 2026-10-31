@@ -1,6 +1,7 @@
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
+@import '@fontsource/space-grotesk/700.css';
 
 /* ---- Tokens (Digital Studio) ---- */
 :root {
@@ -25,6 +26,7 @@
   --warn-bg: #3a2a14; --warn-fg: #ffcf8a;
   --info-bg: #18303a; --info-fg: #a8e1f5;
 
+  --edge: 20px;      /* margen lateral de barra, contenido y footer */
   --gap: 12px;       /* separación general entre bloques */
   --side-w: 300px;   /* ancho del panel de ajustes */
 }
@@ -37,8 +39,17 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 
 /* ---- Estructura general: barra · avisos · área principal · footer ---- */
 .app { display: grid; grid-template-rows: auto auto 1fr auto; height: 100%; }
-.topbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; padding: 8px var(--gap); min-height: 52px; background: var(--panel); border-bottom: 1px solid var(--border); }
-.brand { flex: none; letter-spacing: .02em; }
+.topbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; padding: 8px var(--edge); min-height: 58px; background: var(--panel); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 10px; flex: none; }
+.logo { width: 34px; height: 34px; display: block; flex: none; }
+.logo-bg { fill: var(--accent); }
+.logo-keys { fill: var(--text); }
+.logo-split { stroke: var(--accent); stroke-width: 1.2; fill: none; }
+.logo-black { fill: var(--bg); }
+.brand-text { display: flex; flex-direction: column; gap: 3px; }
+.brand-name { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 19px; line-height: 1; letter-spacing: -.01em; color: var(--text); }
+.brand-name em { font-style: normal; color: var(--accent); }
+.brand-tag { font-size: 9.5px; font-weight: 500; line-height: 1; letter-spacing: .12em; text-transform: uppercase; color: var(--text-2); white-space: nowrap; }
 .tb-file { display: flex; align-items: center; gap: 10px; flex: 1 1 0; min-width: 0; }
 .tb-file > * { flex: none; }
 .tb-file .file-name { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -51,9 +62,9 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .chip.loading i, .chip.fallback i { background: var(--warn-fg); }
 .chip.error i { background: var(--danger); }
 .notices { display: flex; flex-direction: column; gap: 6px; }
-.notices:not(:empty) { padding: 8px var(--gap) 0; }
+.notices:not(:empty) { padding: 8px var(--edge) 0; }
 
-.main { display: flex; gap: var(--gap); padding: var(--gap); min-height: 0; }
+.main { display: flex; gap: var(--gap); padding: var(--gap) var(--edge); min-height: 0; }
 .viewer { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; min-height: 0; }
 .stage { position: relative; display: flex; flex: 1; min-width: 0; min-height: 0; }
 .canvas-host { position: relative; overflow: hidden; min-height: 0; min-width: 0; flex: 1; display: flex; align-items: center; justify-content: center; }
@@ -78,7 +89,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .icon-btn svg { width: 18px; height: 18px; display: block; }
 
 /* ---- Footer discreto ---- */
-.footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 30px; padding: 0 var(--gap); font-size: 12px; color: var(--text-2); border-top: 1px solid var(--border); }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 30px; padding: 0 var(--edge); font-size: 12px; color: var(--text-2); border-top: 1px solid var(--border); }
 .footer span, .footer a { display: inline-flex; align-items: center; gap: 6px; }
 .footer .f-group { display: flex; align-items: center; gap: 16px; }
 .footer strong { color: var(--text); font-weight: 600; }
@@ -205,11 +216,13 @@ input[type=checkbox]:checked { background-color: var(--text); border-color: var(
 .drop-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; font-size: 22px; background: #0c0d13d9; border: 3px dashed var(--accent); pointer-events: none; }
 
 /* ---- Barra superior en anchos medios: se oculta el nombre del archivo, luego el texto del estado ---- */
+@media (max-width: 1100px) { .brand-tag { display: none; } }
 @media (max-width: 1000px) { .tb-file { min-width: max-content; } .tb-file .file-name { display: none; } }
 @media (max-width: 900px) { .chip span { display: none; } .chip { padding: 6px; } }
 
 /* ---- Móvil / tablet vertical: el panel va debajo del canvas (así se ve el efecto mientras se ajusta) ---- */
 @media (max-width: 800px) {
+  :root { --edge: 10px; }
   .topbar { gap: 8px; padding: 8px 10px; }
   .tb-actions { order: 1; margin-left: auto; padding-left: 0; border-left: 0; }
   .tb-file { order: 2; flex: 1 1 100%; min-width: 0; }
