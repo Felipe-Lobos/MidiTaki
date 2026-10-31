@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { transport } from '../playback/Transport';
 import { usePlaybackStore } from '../store/playbackStore';
 import { useSongStore } from '../store/songStore';
@@ -15,6 +15,7 @@ export function Timeline(p: { min: number; max: number }) {
   const hasSong = useSongStore((s) => !!s.song);
   const { time, playing, audioStatus, muted, setMuted } = usePlaybackStore();
   const playLabel = playing ? t.transport.pause : t.transport.play;
+  const fill = hasSong && p.max > p.min ? Math.min(100, Math.max(0, ((time - p.min) / (p.max - p.min)) * 100)) : 0; // solo estilo
 
   return (
     <div className="timeline">
@@ -30,7 +31,7 @@ export function Timeline(p: { min: number; max: number }) {
         <Icon><path d="M6 5v14" fill="none" /><path d="M19 6v12L9.5 12z" stroke="none" /></Icon>
       </button>
       <input type="range" min={p.min} max={p.max} step={0.01} value={time} disabled={!hasSong}
-        onChange={(e) => transport.seek(Number(e.target.value))} />
+        style={{ '--fill': `${fill}%` } as CSSProperties} onChange={(e) => transport.seek(Number(e.target.value))} />
       <span className="muted time">{time.toFixed(2)} / {(hasSong ? p.max : 0).toFixed(2)} s</span>
       <button className="icon-btn" title={t.transport.muteTitle} aria-label={muted ? t.transport.soundOff : t.transport.soundOn}
         aria-pressed={muted} onClick={() => setMuted(!muted)}>

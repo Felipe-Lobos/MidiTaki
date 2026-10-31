@@ -10,6 +10,7 @@ export const es = {
     effectsTitle: 'Solo afecta a la vista previa, no al video exportado',
     keyboardAuto: 'Teclado: automático', keys: (n: number) => `${n} teclas`,
     landscape: 'Horizontal 16:9', portrait: 'Vertical 9:16',
+    landscapeShort: '16:9', portraitShort: '9:16',
     export: 'Exportar', exportUnavailable: 'Este navegador no puede exportar video', about: 'Acerca de',
     panel: '☰ Panel', panelTitle: 'Mostrar u ocultar el panel de ajustes', closePanel: 'Cerrar panel',
   },

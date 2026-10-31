@@ -9,7 +9,7 @@ import { useMidiDrop } from './ui/useMidiDrop';
 import { useShortcuts } from './ui/useShortcuts';
 import { Timeline } from './ui/Timeline';
 import { Footer } from './ui/Footer';
-import { InfoIcon, PanelIcon } from './ui/TopbarIcons.tsx';
+import { InfoIcon, PanelIcon } from './ui/TopbarIcons';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
 import { useSettingsStore } from './store/settingsStore';
@@ -82,9 +82,10 @@ function Main() {
               <option key={k} value={k}>{k === 'auto' ? t.top.keyboardAuto : t.top.keys(Number(k))}</option>
             ))}
           </select>
-          <select className="inline" value={format} onChange={(e) => setFormat(e.target.value as 'landscape' | 'portrait')}>
-            <option value="landscape">{t.top.landscape}</option>
-            <option value="portrait">{t.top.portrait}</option>
+          <select className="inline" value={format} title={t.export.format} aria-label={t.export.format}
+            onChange={(e) => setFormat(e.target.value as 'landscape' | 'portrait')}>
+            <option value="landscape">{t.top.landscapeShort}</option>
+            <option value="portrait">{t.top.portraitShort}</option>
           </select>
         </div>
 
