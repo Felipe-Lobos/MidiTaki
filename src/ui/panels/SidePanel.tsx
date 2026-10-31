@@ -15,7 +15,7 @@ export function SidePanel() {
   const [importError, setImportError] = useState<string | null>(null);
   const { style, patch, apply, reset } = useStyleStore();
   const { song, range, setRangeKey } = useSongStore();
-  const { volume, setVolume, previewLeadTail, setPreviewLeadTail } = useSettingsStore();
+  const { volume, setVolume, previewLeadTail, setPreviewLeadTail, previewFx, setPreviewFx } = useSettingsStore();
 
   const num = (k: NumKey, label: string, min: number, max: number, step?: number, unit?: string) => (
     <Slider label={label} value={style[k]} def={defaultStyle[k]} min={min} max={max} step={step} unit={unit}
@@ -99,6 +99,10 @@ export function SidePanel() {
         </>}
 
         {tab === 'effects' && <>
+          <div className="ctl fx-preview">
+            <Toggle label={t.effects.previewFx} value={previewFx} onChange={setPreviewFx} />
+            <span className="muted">{t.top.effectsTitle}</span>
+          </div>
           {bool('glow', t.effects.glow)}
           {style.glow && <div className="indent">
             {bool('glowSync', t.common.useNoteColor)}

@@ -61,6 +61,7 @@ export const es = {
     octaveColor: 'Color de las líneas', octaveOpacity: 'Opacidad de las líneas',
   },
   effects: {
+    previewFx: 'Efectos en la vista previa',
     glow: 'Brillo neón (glow)',
     glowColor: 'Color del brillo', glowStrength: 'Intensidad del brillo', glowRadius: 'Radio del brillo',
     relief: 'Relieve 2.5D (notas y teclas)',

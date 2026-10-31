@@ -33,8 +33,19 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 
 /* ---- Estructura general: barra · avisos · área principal · footer ---- */
 .app { display: grid; grid-template-rows: auto auto 1fr auto; height: 100%; }
-.topbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 8px var(--gap); min-height: 52px; background: var(--panel); border-bottom: 1px solid var(--border); }
-.brand { letter-spacing: .02em; margin-right: 4px; }
+.topbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; padding: 8px var(--gap); min-height: 52px; background: var(--panel); border-bottom: 1px solid var(--border); }
+.brand { flex: none; letter-spacing: .02em; }
+.tb-file { display: flex; align-items: center; gap: 10px; flex: 1 1 0; min-width: 0; }
+.tb-file > * { flex: none; }
+.tb-file .file-name { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tb-view { display: flex; align-items: center; gap: 8px; flex: none; }
+.tb-view select { margin-left: 0; }
+.tb-actions { display: flex; align-items: center; gap: 8px; flex: none; padding-left: 16px; border-left: 1px solid var(--border); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: var(--surface); color: var(--text-2); font-size: 12px; white-space: nowrap; }
+.chip i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip.ready i { background: var(--ok); }
+.chip.loading i, .chip.fallback i { background: var(--warn-fg); }
+.chip.error i { background: var(--danger); }
 .notices { display: flex; flex-direction: column; gap: 6px; }
 .notices:not(:empty) { padding: 8px var(--gap) 0; }
 
@@ -54,6 +65,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .icon-btn { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 34px; height: 34px; padding: 0; background: var(--surface); border: 0; border-radius: 8px; color: var(--text); cursor: pointer; }
 .icon-btn:hover:not(:disabled) { background: var(--surface-hover); }
 .icon-btn:disabled { opacity: .4; cursor: default; }
+.icon-btn.on { background: var(--accent-soft); color: var(--accent-hover); }
 .icon-btn.play { background: var(--accent); color: var(--on-accent); }
 .icon-btn.play:hover:not(:disabled) { background: var(--accent-hover); }
 .icon-btn svg { width: 18px; height: 18px; display: block; }
@@ -93,6 +105,7 @@ select.inline { margin-left: 0; }
 .ctl-head > span:first-child { flex: 1; }
 .reset { background: none; border: 0; color: inherit; cursor: pointer; opacity: .7; font-size: 16px; }
 .reset:disabled { opacity: .15; cursor: default; }
+.fx-preview { padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 .panel input[type=range] { accent-color: var(--accent); }
 .swatch { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 0; color: inherit; padding: 6px 8px; border-radius: 8px; cursor: text; font: inherit; }
 .swatch i { width: 18px; height: 18px; border-radius: 5px; border: 1px solid #ffffff33; }
@@ -159,9 +172,19 @@ select.inline { margin-left: 0; }
 .drop-card ol { margin: 4px 0; padding-left: 20px; text-align: left; display: flex; flex-direction: column; gap: 6px; color: var(--text-2); }
 .drop-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; font-size: 22px; background: #0c0d13d9; border: 3px dashed var(--accent); pointer-events: none; }
 
+/* ---- Barra superior en anchos medios: se oculta el nombre del archivo, luego el texto del estado ---- */
+@media (max-width: 1000px) { .tb-file { min-width: max-content; } .tb-file .file-name { display: none; } }
+@media (max-width: 900px) { .chip span { display: none; } .chip { padding: 6px; } }
+
 /* ---- Móvil / tablet vertical: el panel va debajo del canvas (así se ve el efecto mientras se ajusta) ---- */
 @media (max-width: 800px) {
   .topbar { gap: 8px; padding: 8px 10px; }
+  .tb-actions { order: 1; margin-left: auto; padding-left: 0; border-left: 0; }
+  .tb-file { order: 2; flex: 1 1 100%; min-width: 0; }
+  .tb-file .file-name { display: block; }
+  .chip span { display: inline; } .chip { padding: 3px 10px; }
+  .tb-view { order: 3; flex: 1 1 100%; }
+  .tb-view select { flex: 1; min-width: 0; }
   .main { flex-direction: column; gap: 8px; padding: 8px; }
   .side { width: 100%; height: 44vh; }
   .side-close { display: block; flex: none; }
