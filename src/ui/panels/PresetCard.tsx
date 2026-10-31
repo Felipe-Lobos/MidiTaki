@@ -18,11 +18,11 @@ export function PresetPreview({ style: s }: { style: Style }) {
             borderRadius: Math.min(s.noteRadius, 6),
             background: s.noteFill === 'outline' ? 'transparent' : c,
             border: s.noteFill === 'outline' ? `2px solid ${c}` : undefined,
-            boxShadow: s.glow ? `0 0 8px ${s.syncColors ? c : s.glowColor}` : undefined,
+            boxShadow: s.glow ? `0 0 8px ${s.glowSync ? c : s.glowColor}` : undefined,
           }} />
         );
       })}
-      <div className="pk" style={{ background: s.whiteKey, borderTop: s.showHitLine ? `2px solid ${s.hitLineColor}` : undefined }}>
+      <div className="pk" style={{ background: s.whiteKey, borderTop: s.showHitLine ? `2px solid ${s.hitLineSync ? s.noteColor : s.hitLineColor}` : undefined }}>
         {['26%', '56%', '84%'].map((left) => <b key={left} style={{ left, background: s.blackKey }} />)}
       </div>
     </div>

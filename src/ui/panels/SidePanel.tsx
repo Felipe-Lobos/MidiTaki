@@ -63,19 +63,27 @@ export function SidePanel() {
           )}
           {color('whiteKey', t.keyboard.white)}
           {color('blackKey', t.keyboard.black)}
-          {!style.syncColors && color('pressedColor', t.keyboard.pressed)}
+          <p className="group-title">{t.keyboard.pressed}</p>
+          {bool('keySync', t.common.useNoteColor)}
+          {!style.keySync && color('pressedColor', t.keyboard.pressedColor)}
           {num('keyboardRatio', t.keyboard.height, 0.08, 0.3)}
           {num('keyPress', t.keyboard.press, 0, 12, 1, ' px')}
           {bool('showHitLine', t.keyboard.hitLine)}
-          {style.showHitLine && <>
-            {color('hitLineColor', t.keyboard.hitColor)}
+          {style.showHitLine && <div className="indent">
+            {bool('hitLineSync', t.common.useNoteColor)}
+            {!style.hitLineSync && color('hitLineColor', t.keyboard.hitColor)}
+            {style.hitLineSync && style.colorMode === 'pitch' && <p className="muted">{t.keyboard.lineSyncNote}</p>}
             <Segmented label={t.keyboard.lineStyle} wrap value={style.hitLineStyle} onChange={(v) => patch({ hitLineStyle: v })}
               options={(['straight', 'neon', 'mist', 'fog', 'electric', 'static'] as const).map((v) => ({ value: v, text: t.hitStyles[v] }))} />
             {style.hitLineStyle !== 'straight' && num('hitLineIntensity', t.keyboard.lineIntensity, 0, 2, 0.05)}
             {bool('hitPulse', t.keyboard.pulse)}
             {bool('hitFlash', t.keyboard.flash)}
+            {style.hitFlash && <div className="indent">
+              {bool('hitFlashSync', t.common.useNoteColor)}
+              {!style.hitFlashSync && color('hitFlashColor', t.keyboard.flashColor)}
+            </div>}
             <p className="muted">{t.keyboard.lineNote}</p>
-          </>}
+          </div>}
         </>}
 
         {tab === 'scene' && <>
@@ -92,13 +100,15 @@ export function SidePanel() {
 
         {tab === 'effects' && <>
           {bool('glow', t.effects.glow)}
-          {bool('syncColors', t.effects.sync)}
-          {style.glow && !style.syncColors && color('glowColor', t.effects.glowColor)}
-          {style.glow && num('glowStrength', t.effects.glowStrength, 0, 3)}
-          {style.glow && num('glowRadius', t.effects.glowRadius, 2, 24, 1, ' px')}
+          {style.glow && <div className="indent">
+            {bool('glowSync', t.common.useNoteColor)}
+            {!style.glowSync && color('glowColor', t.effects.glowColor)}
+            {num('glowStrength', t.effects.glowStrength, 0, 3)}
+            {num('glowRadius', t.effects.glowRadius, 2, 24, 1, ' px')}
+          </div>}
           {num('relief', t.effects.relief, 0, 1)}
           {bool('particles', t.particles.enable)}
-          {style.particles && <>
+          {style.particles && <div className="indent">
             <Segmented label={t.particles.type} wrap value={style.particleType} onChange={(v) => patch({ particleType: v })}
               options={[
                 { value: 'sparks', text: t.particles.sparks }, { value: 'embers', text: t.particles.embers },
@@ -111,8 +121,10 @@ export function SidePanel() {
             {num('particleLife', t.particles.life, 0.2, 3, 0.1, ' s')}
             {num('particleSpread', t.particles.spread, 0, 1)}
             {bool('particleGlow', t.particles.glow)}
+            {bool('particleSync', t.common.useNoteColor)}
+            {!style.particleSync && color('particleColor', t.particles.color)}
             <p className="muted">{t.particles.note}</p>
-          </>}
+          </div>}
           <p className="muted">{t.effects.note}</p>
         </>}
 

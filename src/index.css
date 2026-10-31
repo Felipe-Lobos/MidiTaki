@@ -120,3 +120,7 @@ select.inline { margin-left: 0; }
   .side-close { display: block; flex: none; }
   .drop-card { padding: 18px 16px; }
 }
+
+/* Controles que dependen de un interruptor: sangrados bajo él; títulos de grupo */
+.indent { display: flex; flex-direction: column; gap: 14px; margin-left: 6px; padding-left: 12px; border-left: 2px solid #2a2a33; }
+.group-title { margin: 4px 0 -6px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; opacity: .6; }

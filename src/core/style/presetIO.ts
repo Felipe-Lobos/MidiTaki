@@ -17,7 +17,15 @@ const LIMITS: Partial<Record<keyof Style, [number, number]>> = {
 
 /** Convierte CUALQUIER cosa en un Style válido (campos que falten o sean inválidos → por defecto). */
 export function sanitizeStyle(raw: unknown): Style {
-  const src = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  let src = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  // Estilos y presets antiguos: tenían una sola casilla «syncColors» (tecla + brillo). Se traduce a las nuevas
+  // conservando el aspecto de entonces: las partículas ya usaban el color de la nota; la línea y el destello, el de la línea.
+  if (typeof src.syncColors === 'boolean' && !('keySync' in src)) {
+    src = {
+      ...src, keySync: src.syncColors, glowSync: src.syncColors, particleSync: true,
+      hitLineSync: false, hitFlashSync: false, hitFlashColor: src.hitLineColor,
+    };
+  }
   const out: Record<string, unknown> = { ...defaultStyle };
   for (const key of Object.keys(defaultStyle) as (keyof Style)[]) {
     const def = defaultStyle[key];

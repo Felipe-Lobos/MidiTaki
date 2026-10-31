@@ -135,14 +135,14 @@ export class Scene {
     this.renderFrame(this.lastT);
   }
 
-  private get haloOn() { return this.style.glow && this.style.syncColors && this.fxAllowed; }
+  private get haloOn() { return this.style.glow && this.style.glowSync && this.fxAllowed; }
 
   private applyFx() {
     const st = this.style;
     this.applyHaloFx();
     this.fxLayer.filterArea = new Rectangle(0, 0, this.w, this.h);
     // Brillo de un solo color: GlowFilter sobre toda la capa (solo si NO se sincroniza)
-    if (!(st.glow && !st.syncColors && this.fxAllowed)) { this.fxLayer.filters = null; return; }
+    if (!(st.glow && !st.glowSync && this.fxAllowed)) { this.fxLayer.filters = null; return; }
     if (!this.glowFilter || this.glowDistance !== st.glowRadius) { // "distance" solo se fija al crear
       this.fxLayer.filters = null;
       this.glowFilter?.destroy();
@@ -272,6 +272,12 @@ export class Scene {
     this.drawHitLine();
   }
 
+  /** Color de la línea de impacto (con su bruma y su pulso): el propio, o el de las notas graves si está sincronizado. */
+  private lineColor(): number {
+    const st = this.style;
+    return hexToNum(st.hitLineSync ? st.noteColor : st.hitLineColor);
+  }
+
   /** Línea recta nítida. Los estilos bruma, niebla, eléctrico y estática dibujan la suya (en renderLineFx). */
   private drawHitLine() {
     const st = this.style;
@@ -279,7 +285,7 @@ export class Scene {
     if (!st.showHitLine) return;
     const cfg = LINE_CFG[st.hitLineStyle];
     if (this.fxAllowed && !cfg.crisp) return;
-    const c = hexToNum(st.hitLineColor);
+    const c = this.lineColor();
     this.hitLine.rect(0, this.hitY - 1, this.w, 2).fill(this.fxAllowed && st.hitLineStyle === 'neon' ? lerpColor(c, 0xffffff, 0.55) : c);
   }
 
@@ -320,10 +326,11 @@ export class Scene {
     this.lineFx.visible = on;
     if (!on) return;
     const cfg = LINE_CFG[st.hitLineStyle];
-    const I = st.hitLineIntensity, color = hexToNum(st.hitLineColor), hitY = this.hitY, W = this.w;
+    const I = st.hitLineIntensity, color = this.lineColor(), hitY = this.hitY, W = this.w;
 
     // Notas que acaban de golpear la tecla (o siguen sonando): pulso y destellos
     let pulse = 0, flashes = 0;
+    const span = Math.max(1, this.range.high - this.range.low);
     if (this.song && (st.hitPulse || st.hitFlash)) {
       const glow = this.partTextures().glow;
       for (const n of visibleNotes(this.song, t - 0.6, t)) {
@@ -349,7 +356,7 @@ export class Scene {
         f.visible = true;
         f.position.set(key.rect.x + key.rect.w / 2, hitY - 1);
         f.scale.set(size / glow.width, (size * 0.75) / glow.height);
-        f.tint = color;
+        f.tint = st.hitFlashSync ? noteTint(st, (n.midi - this.range.low) / span) : hexToNum(st.hitFlashColor);
         f.alpha = Math.min(1, level * Math.max(I, 0.3));
       }
     }
@@ -519,7 +526,7 @@ export class Scene {
         if (!key || full) continue;
         const first = Math.max(0, Math.ceil((t - life - n.start) * rate));
         const last = Math.floor((Math.min(t, n.start + n.duration) - n.start) * rate);
-        const tint = noteTint(st, (n.midi - this.range.low) / span);
+        const tint = st.particleSync ? noteTint(st, (n.midi - this.range.low) / span) : hexToNum(st.particleColor);
         const seed = Math.round(n.start * 1000);
         const cx = key.rect.x + key.rect.w / 2, vel = 0.6 + 0.4 * n.velocity;
         for (let j = first; j <= last && !full; j++) {
@@ -574,7 +581,7 @@ export class Scene {
         const end = n.start + n.duration;
         const tint = noteTint(st, (n.midi - this.range.low) / span);
         const playing = n.start <= t && t < end;
-        if (playing) active.set(n.midi, st.syncColors ? tint : hexToNum(st.pressedColor));
+        if (playing) active.set(n.midi, st.keySync ? tint : hexToNum(st.pressedColor));
 
         // La nota activa se prolonga lo que se hunde la tecla: sin hueco entre nota y tecla
         const bottom = Math.min(hitY + (playing ? st.keyPress : 0), hitY - (n.start - t) * pxPerSec);

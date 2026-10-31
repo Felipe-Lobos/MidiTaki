@@ -22,7 +22,7 @@ export const PRESETS: { id: PresetId; style: Partial<Style> }[] = [
       particles: true, particleType: 'embers', particleSpeed: 200, particleLife: 1.4, hitLineStyle: 'mist', hitFlash: true } },
   { id: 'fire', style: {
       background: '#120704', colorMode: 'pitch', noteColor: '#ff3d00', noteColor2: '#ffd23f',
-      pressedColor: '#ffd23f', hitLineColor: '#ff6a00', glowColor: '#ff6a00', noteRadius: 4, glowStrength: 1.3,
+      pressedColor: '#ffd23f', hitLineSync: false, hitLineColor: '#ff6a00', glowColor: '#ff6a00', noteRadius: 4, glowStrength: 1.3,
       relief: 0.5, fallSeconds: 2.5, hitLineStyle: 'fog', hitPulse: true, hitFlash: true, particles: true, particleType: 'sparks', particleSpread: 0.6 } },
   { id: 'aurora', style: {
       background: '#050b14', colorMode: 'pitch', noteColor: '#3ef0b0', noteColor2: '#8a5cff',
@@ -31,7 +31,7 @@ export const PRESETS: { id: PresetId; style: Partial<Style> }[] = [
       particles: true, particleType: 'trails', particleSpeed: 200, particleSpread: 0.6 } },
   { id: 'steel', style: {
       background: '#0b0d11', colorMode: 'pitch', noteColor: '#d7dee8', noteColor2: '#6f93c4',
-      pressedColor: '#ffffff', hitLineColor: '#9fb4cf', glowColor: '#9fb4cf', noteRadius: 3, glowStrength: 0.8,
+      pressedColor: '#ffffff', hitLineSync: false, hitLineColor: '#9fb4cf', glowColor: '#9fb4cf', noteRadius: 3, glowStrength: 0.8,
       relief: 0.8, whiteKey: '#e9edf2', blackKey: '#1a1d23', hitLineStyle: 'static', hitPulse: true,
       particles: true, particleType: 'friction', particleSpeed: 200 } },
   { id: 'midnight', style: {

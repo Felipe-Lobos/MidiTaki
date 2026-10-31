@@ -1,7 +1,9 @@
 /** Todos los textos de la interfaz. Para añadir otro idioma: crear en.ts con la misma forma (tipo Strings). */
 export const es = {
   app: { name: 'MidiTaki', tagline: 'De MIDI a video de notas en cascada' },
-  common: { reset: 'Restablecer', cancel: 'Cancelar', close: 'Cerrar', retry: 'Reintentar', copied: 'Copiado', pickColor: 'Abrir selector de color' },
+  common: { reset: 'Restablecer', cancel: 'Cancelar', close: 'Cerrar', retry: 'Reintentar', copied: 'Copiado', pickColor: 'Abrir selector de color',
+    useNoteColor: 'Usar el color de la nota',
+  },
 
   top: {
     loadMidi: 'Cargar MIDI', noFile: 'Ningún archivo', effects: 'Efectos',
@@ -43,10 +45,11 @@ export const es = {
   keyboard: {
     outside: (n: number) => `${n} notas quedan fuera del rango del teclado y no se dibujan.`,
     fit: 'Ajustar teclado automáticamente',
-    white: 'Teclas blancas', black: 'Teclas negras', pressed: 'Tecla pulsada',
+    white: 'Teclas blancas', black: 'Teclas negras', pressed: 'Tecla pulsada', pressedColor: 'Color de la tecla pulsada',
     height: 'Altura del teclado', press: 'Profundidad al pulsar', hitLine: 'Línea de impacto', hitColor: 'Color de la línea',
     lineStyle: 'Estilo de la línea', lineIntensity: 'Intensidad del efecto',
-    pulse: 'Pulso con cada nota', flash: 'Destello al golpear la tecla',
+    pulse: 'Pulso con cada nota', flash: 'Destello al golpear la tecla', flashColor: 'Color del destello',
+    lineSyncNote: 'Con colores por altura, la línea (y su bruma y pulso) usa el color de las notas graves.',
     lineNote: 'Con «Efectos» apagado en la barra superior, la vista previa muestra solo la línea simple; el video exportado incluye todo.',
   },
   hitStyles: { straight: 'Recto', neon: 'Neón', mist: 'Bruma', fog: 'Niebla intensa', electric: 'Eléctrico', static: 'Estática' },
@@ -57,7 +60,7 @@ export const es = {
     octaveColor: 'Color de las líneas', octaveOpacity: 'Opacidad de las líneas',
   },
   effects: {
-    glow: 'Brillo neón (glow)', sync: 'Sincronizar tecla y brillo con el color de la nota',
+    glow: 'Brillo neón (glow)',
     glowColor: 'Color del brillo', glowStrength: 'Intensidad del brillo', glowRadius: 'Radio del brillo',
     relief: 'Relieve 2.5D (notas y teclas)',
     note: 'El interruptor «Efectos» de la barra superior solo afecta a la vista previa; el video exportado siempre usa calidad completa.',
@@ -66,7 +69,7 @@ export const es = {
     enable: 'Partículas al tocar la tecla',
     type: 'Efecto', sparks: 'Chispas', embers: 'Brasas', trails: 'Estelas', stars: 'Estrellas', friction: 'Fricción', electric: 'Electricidad',
     amount: 'Cantidad (por segundo y nota)', size: 'Tamaño', speed: 'Velocidad', life: 'Duración',
-    spread: 'Dispersión', glow: 'Brillo en las partículas',
+    spread: 'Dispersión', glow: 'Brillo en las partículas', color: 'Color de las partículas',
     note: 'Toman el color de su nota. Con «Efectos» apagado en la barra superior no se ven en la vista previa; el video exportado las incluye siempre.',
   },
   audio: {
