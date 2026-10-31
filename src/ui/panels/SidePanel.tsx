@@ -41,17 +41,23 @@ export function SidePanel() {
 
       <div className="panel">
         {tab === 'notes' && <>
-          <Segmented label={t.notes.color} value={style.colorMode} onChange={(v) => patch({ colorMode: v })}
-            options={[{ value: 'solid', text: t.notes.solid }, { value: 'pitch', text: t.notes.byPitch }]} />
-          {color('noteColor', style.colorMode === 'pitch' ? t.notes.bass : t.notes.color)}
-          {style.colorMode === 'pitch' && color('noteColor2', t.notes.treble)}
-          {num('noteRadius', t.notes.radius, 0, 24, 1, ' px')}
-          {num('noteGap', t.notes.gap, 0, 8, 1, ' px')}
-          {num('noteOpacity', t.notes.opacity, 0.2, 1)}
-          {bool('velocityOpacity', t.notes.velocity)}
-          <Segmented label={t.notes.fill} value={style.noteFill} onChange={(v) => patch({ noteFill: v })}
-            options={[{ value: 'solid', text: t.notes.solid }, { value: 'outline', text: t.notes.hollow }]} />
-          {style.noteFill === 'outline' && num('outlineWidth', t.notes.outline, 1, 8, 1, ' px')}
+          <div className="card">
+            <Segmented label={t.notes.color} value={style.colorMode} onChange={(v) => patch({ colorMode: v })}
+              options={[{ value: 'solid', text: t.notes.solid }, { value: 'pitch', text: t.notes.byPitch }]} />
+            {color('noteColor', style.colorMode === 'pitch' ? t.notes.bass : t.notes.color)}
+            {style.colorMode === 'pitch' && color('noteColor2', t.notes.treble)}
+          </div>
+          <div className="card">
+            {num('noteRadius', t.notes.radius, 0, 24, 1, ' px')}
+            {num('noteGap', t.notes.gap, 0, 8, 1, ' px')}
+            {num('noteOpacity', t.notes.opacity, 0.2, 1)}
+            {bool('velocityOpacity', t.notes.velocity)}
+          </div>
+          <div className="card">
+            <Segmented label={t.notes.fill} value={style.noteFill} onChange={(v) => patch({ noteFill: v })}
+              options={[{ value: 'solid', text: t.notes.solid }, { value: 'outline', text: t.notes.hollow }]} />
+            {style.noteFill === 'outline' && num('outlineWidth', t.notes.outline, 1, 8, 1, ' px')}
+          </div>
         </>}
 
         {tab === 'keyboard' && <>
@@ -61,79 +67,101 @@ export function SidePanel() {
               <button className="btn" onClick={() => setRangeKey('auto')}>{t.keyboard.fit}</button>
             </div>
           )}
-          {color('whiteKey', t.keyboard.white)}
-          {color('blackKey', t.keyboard.black)}
-          <p className="group-title">{t.keyboard.pressed}</p>
-          {bool('keySync', t.common.useNoteColor)}
-          {!style.keySync && color('pressedColor', t.keyboard.pressedColor)}
-          {num('keyboardRatio', t.keyboard.height, 0.08, 0.3)}
-          {num('keyPress', t.keyboard.press, 0, 12, 1, ' px')}
-          {bool('showHitLine', t.keyboard.hitLine)}
-          {style.showHitLine && <div className="indent">
-            {bool('hitLineSync', t.common.useNoteColor)}
-            {!style.hitLineSync && color('hitLineColor', t.keyboard.hitColor)}
-            {style.hitLineSync && style.colorMode === 'pitch' && <p className="muted">{t.keyboard.lineSyncNote}</p>}
-            <Segmented label={t.keyboard.lineStyle} wrap value={style.hitLineStyle} onChange={(v) => patch({ hitLineStyle: v })}
-              options={(['straight', 'neon', 'mist', 'fog', 'electric', 'static'] as const).map((v) => ({ value: v, text: t.hitStyles[v] }))} />
-            {style.hitLineStyle !== 'straight' && num('hitLineIntensity', t.keyboard.lineIntensity, 0, 2, 0.05)}
-            {bool('hitPulse', t.keyboard.pulse)}
-            {bool('hitFlash', t.keyboard.flash)}
-            {style.hitFlash && <div className="indent">
-              {bool('hitFlashSync', t.common.useNoteColor)}
-              {!style.hitFlashSync && color('hitFlashColor', t.keyboard.flashColor)}
+          <div className="card">
+            {color('whiteKey', t.keyboard.white)}
+            {color('blackKey', t.keyboard.black)}
+          </div>
+          <div className="card">
+            <p className="group-title">{t.keyboard.pressed}</p>
+            {bool('keySync', t.common.useNoteColor)}
+            {!style.keySync && color('pressedColor', t.keyboard.pressedColor)}
+          </div>
+          <div className="card">
+            {num('keyboardRatio', t.keyboard.height, 0.08, 0.3)}
+            {num('keyPress', t.keyboard.press, 0, 12, 1, ' px')}
+          </div>
+          <div className="card">
+            {bool('showHitLine', t.keyboard.hitLine)}
+            {style.showHitLine && <div className="indent">
+              {bool('hitLineSync', t.common.useNoteColor)}
+              {!style.hitLineSync && color('hitLineColor', t.keyboard.hitColor)}
+              {style.hitLineSync && style.colorMode === 'pitch' && <p className="muted">{t.keyboard.lineSyncNote}</p>}
+              <Segmented label={t.keyboard.lineStyle} wrap value={style.hitLineStyle} onChange={(v) => patch({ hitLineStyle: v })}
+                options={(['straight', 'neon', 'mist', 'fog', 'electric', 'static'] as const).map((v) => ({ value: v, text: t.hitStyles[v] }))} />
+              {style.hitLineStyle !== 'straight' && num('hitLineIntensity', t.keyboard.lineIntensity, 0, 2, 0.05)}
+              {bool('hitPulse', t.keyboard.pulse)}
+              {bool('hitFlash', t.keyboard.flash)}
+              {style.hitFlash && <div className="indent">
+                {bool('hitFlashSync', t.common.useNoteColor)}
+                {!style.hitFlashSync && color('hitFlashColor', t.keyboard.flashColor)}
+              </div>}
+              <p className="muted">{t.keyboard.lineNote}</p>
             </div>}
-            <p className="muted">{t.keyboard.lineNote}</p>
-          </div>}
+          </div>
         </>}
 
         {tab === 'scene' && <>
-          {color('background', t.scene.background)}
-          {num('fallSeconds', t.scene.fall, 1, 8, 0.1, ' s')}
-          {bool('showOctaveLines', t.scene.octaveLines)}
-          {style.showOctaveLines && <>
-            {bool('octaveLineAuto', t.scene.octaveAuto)}
-            {!style.octaveLineAuto && color('octaveLineColor', t.scene.octaveColor)}
-            {num('octaveLineOpacity', t.scene.octaveOpacity, 0.05, 1)}
-          </>}
-          <Toggle label={t.scene.leadTail} value={previewLeadTail} onChange={setPreviewLeadTail} />
+          <div className="card">
+            {color('background', t.scene.background)}
+            {num('fallSeconds', t.scene.fall, 1, 8, 0.1, ' s')}
+          </div>
+          <div className="card">
+            {bool('showOctaveLines', t.scene.octaveLines)}
+            {style.showOctaveLines && <>
+              {bool('octaveLineAuto', t.scene.octaveAuto)}
+              {!style.octaveLineAuto && color('octaveLineColor', t.scene.octaveColor)}
+              {num('octaveLineOpacity', t.scene.octaveOpacity, 0.05, 1)}
+            </>}
+          </div>
+          <div className="card">
+            <Toggle label={t.scene.leadTail} value={previewLeadTail} onChange={setPreviewLeadTail} />
+          </div>
         </>}
 
         {tab === 'effects' && <>
-          <div className="ctl fx-preview">
+          <div className="card fx-preview">
             <Toggle label={t.effects.previewFx} value={previewFx} onChange={setPreviewFx} />
             <span className="muted">{t.top.effectsTitle}</span>
           </div>
-          {bool('glow', t.effects.glow)}
-          {style.glow && <div className="indent">
-            {bool('glowSync', t.common.useNoteColor)}
-            {!style.glowSync && color('glowColor', t.effects.glowColor)}
-            {num('glowStrength', t.effects.glowStrength, 0, 3)}
-            {num('glowRadius', t.effects.glowRadius, 2, 24, 1, ' px')}
-          </div>}
-          {num('relief', t.effects.relief, 0, 1)}
-          {bool('particles', t.particles.enable)}
-          {style.particles && <div className="indent">
-            <Segmented label={t.particles.type} wrap value={style.particleType} onChange={(v) => patch({ particleType: v })}
-              options={[
-                { value: 'sparks', text: t.particles.sparks }, { value: 'embers', text: t.particles.embers },
-                { value: 'trails', text: t.particles.trails }, { value: 'stars', text: t.particles.stars },
-                { value: 'friction', text: t.particles.friction }, { value: 'electric', text: t.particles.electric },
-              ]} />
-            {num('particleAmount', t.particles.amount, 2, 120, 1, ' /s')}
-            {num('particleSize', t.particles.size, 1, 12, 0.5, ' px')}
-            {num('particleSpeed', t.particles.speed, 40, 600, 10, ' px/s')}
-            {num('particleLife', t.particles.life, 0.2, 3, 0.1, ' s')}
-            {num('particleSpread', t.particles.spread, 0, 1)}
-            {bool('particleGlow', t.particles.glow)}
-            {bool('particleSync', t.common.useNoteColor)}
-            {!style.particleSync && color('particleColor', t.particles.color)}
-            <p className="muted">{t.particles.note}</p>
-          </div>}
+          <div className="card">
+            {bool('glow', t.effects.glow)}
+            {style.glow && <div className="indent">
+              {bool('glowSync', t.common.useNoteColor)}
+              {!style.glowSync && color('glowColor', t.effects.glowColor)}
+              {num('glowStrength', t.effects.glowStrength, 0, 3)}
+              {num('glowRadius', t.effects.glowRadius, 2, 24, 1, ' px')}
+            </div>}
+          </div>
+          <div className="card">
+            {num('relief', t.effects.relief, 0, 1)}
+          </div>
+          <div className="card">
+            {bool('particles', t.particles.enable)}
+            {style.particles && <div className="indent">
+              <Segmented label={t.particles.type} wrap value={style.particleType} onChange={(v) => patch({ particleType: v })}
+                options={[
+                  { value: 'sparks', text: t.particles.sparks }, { value: 'embers', text: t.particles.embers },
+                  { value: 'trails', text: t.particles.trails }, { value: 'stars', text: t.particles.stars },
+                  { value: 'friction', text: t.particles.friction }, { value: 'electric', text: t.particles.electric },
+                ]} />
+              {num('particleAmount', t.particles.amount, 2, 120, 1, ' /s')}
+              {num('particleSize', t.particles.size, 1, 12, 0.5, ' px')}
+              {num('particleSpeed', t.particles.speed, 40, 600, 10, ' px/s')}
+              {num('particleLife', t.particles.life, 0.2, 3, 0.1, ' s')}
+              {num('particleSpread', t.particles.spread, 0, 1)}
+              {bool('particleGlow', t.particles.glow)}
+              {bool('particleSync', t.common.useNoteColor)}
+              {!style.particleSync && color('particleColor', t.particles.color)}
+              <p className="muted">{t.particles.note}</p>
+            </div>}
+          </div>
           <p className="muted">{t.effects.note}</p>
         </>}
 
         {tab === 'audio' && <>
-          <Slider label={t.audio.volume} value={volume} def={1} min={0} max={1.5} step={0.05} onChange={setVolume} />
+          <div className="card">
+            <Slider label={t.audio.volume} value={volume} def={1} min={0} max={1.5} step={0.05} onChange={setVolume} />
+          </div>
           <p className="muted">{t.audio.note}</p>
         </>}
 
