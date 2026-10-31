@@ -10,6 +10,7 @@ export function AboutDialog({ open, onClose }: { open: boolean; onClose: () => v
       <div className="modal about" onClick={(e) => e.stopPropagation()}>
         <h2>{t.about.title}</h2>
         <p>{t.about.description}</p>
+        <p>{t.about.createdBy} <a href={APP.authorUrl} target="_blank" rel="noopener noreferrer">{APP.author}</a></p>
         <p className="muted">{t.about.privacy}</p>
 
         {(APP.repoUrl || APP.license) && (

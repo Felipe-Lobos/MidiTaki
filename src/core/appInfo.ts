@@ -1,6 +1,8 @@
 export const APP = {
   name: 'MidiTaki',
-  repoUrl: '',  // TODO: URL del repositorio en GitHub (si queda vacío, no se muestra el enlace)
+  repoUrl: 'https://github.com/Felipe-Lobos/MidiTaki',
+  author: 'Felipe Lobos',
+  authorUrl: 'https://github.com/Felipe-Lobos',
   license: '',  // TODO: licencia del código, p. ej. 'MIT' (si queda vacío, no se muestra)
 };
 

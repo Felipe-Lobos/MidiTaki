@@ -121,6 +121,7 @@ export const es = {
     open: 'Acerca de', title: 'Acerca de MidiTaki',
     description: 'MidiTaki convierte archivos MIDI de piano en videos de notas en cascada. «Taki» (滝) significa cascada en japonés.',
     privacy: 'Privacidad: tus archivos MIDI y los videos que generas nunca salen de tu navegador. MidiTaki no usa cuentas ni analíticas.',
+    createdBy: 'Creado por',
     openSource: 'Código abierto', license: (name: string) => `Licencia: ${name}`, repo: 'Repositorio',
     creditsTitle: 'Créditos',
     pianoCredit: 'Piano: «Salamander Grand Piano V3», de Alexander Holm, bajo licencia CC BY 3.0. Las muestras se reproducen afinadas y mezcladas para cada nota.',
