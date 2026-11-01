@@ -11,7 +11,8 @@ export const PIANO_CREDIT = {
   sourceUrl: 'https://archive.org/details/SalamanderGrandPianoV3',
 };
 
-// Mediabunny (MPL-2.0) y Salamander (CC BY 3.0) están verificados; el resto, comprobar con license-checker.
+// Verificado con `npx license-checker --production --summary` (nov 2026). Para añadir una librería, repetirlo y actualizar
+// public/THIRD_PARTY_NOTICES.txt; el texto completo de cada licencia va en public/THIRD_PARTY_LICENSES.txt (npm run licencias).
 export const LIBRARIES = [
   { name: 'Pixi.js', license: 'MIT', url: 'https://pixijs.com' },
   { name: 'pixi-filters', license: 'MIT', url: 'https://github.com/pixijs/filters' },
@@ -20,4 +21,6 @@ export const LIBRARIES = [
   { name: 'react-colorful', license: 'MIT', url: 'https://github.com/omgovich/react-colorful' },
   { name: '@tonejs/midi', license: 'MIT', url: 'https://github.com/Tonejs/Midi' },
   { name: 'Mediabunny', license: 'MPL-2.0', url: 'https://mediabunny.dev' },
+  { name: 'Inter (tipografía)', license: 'OFL-1.1', url: 'https://rsms.me/inter/' },
+  { name: 'Space Grotesk (tipografía)', license: 'OFL-1.1', url: 'https://github.com/floriankarsten/space-grotesk' },
 ];

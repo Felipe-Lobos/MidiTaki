@@ -10,7 +10,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "licencias": "generate-license-file --input package.json --output public/THIRD_PARTY_LICENSES.txt --overwrite"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
