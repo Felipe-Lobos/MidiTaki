@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { t } from '../../i18n';
 
@@ -18,11 +18,12 @@ export function Slider(p: {
 }) {
   const step = p.step ?? 0.01;
   const digits = step >= 1 ? 0 : 2;
+  const fill = Math.min(100, Math.max(0, ((p.value - p.min) / (p.max - p.min)) * 100)); // tramo relleno de la pista (solo estilo)
   return (
     <div className="ctl">
       <Head label={p.label} shown={`${p.value.toFixed(digits)}${p.unit ?? ''}`}
         changed={p.value !== p.def} onReset={() => p.onChange(p.def)} />
-      <input type="range" min={p.min} max={p.max} step={step} value={p.value}
+      <input type="range" min={p.min} max={p.max} step={step} value={p.value} style={{ '--fill': `${fill}%` } as CSSProperties}
         onChange={(e) => p.onChange(Number(e.target.value))} />
     </div>
   );

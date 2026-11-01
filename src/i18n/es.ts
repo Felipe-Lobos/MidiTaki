@@ -1,6 +1,6 @@
 /** Todos los textos de la interfaz. Para añadir otro idioma: crear en.ts con la misma forma (tipo Strings). */
 export const es = {
-  app: { name: 'MidiTaki', tagline: 'De MIDI a video de notas en cascada' },
+  app: { name: 'MidiTaki', tagline: 'De MIDI a video de notas en cascada', brandMidi: 'MIDI', brandTaki: 'Taki', brandTag: 'Piano MIDI Visualizer' },
   common: { reset: 'Restablecer', cancel: 'Cancelar', close: 'Cerrar', retry: 'Reintentar', copied: 'Copiado', pickColor: 'Abrir selector de color',
     useNoteColor: 'Usar el color de la nota',
   },
@@ -8,8 +8,9 @@ export const es = {
   top: {
     loadMidi: 'Cargar MIDI', noFile: 'Ningún archivo', effects: 'Efectos',
     effectsTitle: 'Solo afecta a la vista previa, no al video exportado',
-    keyboardAuto: 'Teclado: automático', keys: (n: number) => `${n} teclas`,
+    keyboardAuto: 'Automático', keys: (n: number) => `${n} teclas`, keyboardLabel: 'Cantidad de teclas',
     landscape: 'Horizontal 16:9', portrait: 'Vertical 9:16',
+    landscapeShort: '16:9', portraitShort: '9:16',
     export: 'Exportar', exportUnavailable: 'Este navegador no puede exportar video', about: 'Acerca de',
     panel: '☰ Panel', panelTitle: 'Mostrar u ocultar el panel de ajustes', closePanel: 'Cerrar panel',
   },
@@ -21,6 +22,7 @@ export const es = {
     play: 'Play', pause: 'Pausa', playTitle: 'Espacio',
     mute: '🔊 Sonido', unmute: '🔇 Silenciado',
     muteTitle: 'Silenciar o activar el sonido de la vista previa (M). No afecta al audio del video exportado.',
+    restart: 'Volver al inicio', soundOn: 'Sonido activado', soundOff: 'Sonido silenciado',
   },
   drop: {
     title: 'Arrastra un archivo MIDI aquí', or: 'o', choose: 'Elegir archivo MIDI',
@@ -60,6 +62,7 @@ export const es = {
     octaveColor: 'Color de las líneas', octaveOpacity: 'Opacidad de las líneas',
   },
   effects: {
+    previewFx: 'Efectos en la vista previa',
     glow: 'Brillo neón (glow)',
     glowColor: 'Color del brillo', glowStrength: 'Intensidad del brillo', glowRadius: 'Radio del brillo',
     relief: 'Relieve 2.5D (notas y teclas)',
@@ -155,6 +158,10 @@ export const es = {
     longSong: (min: number) => `Esta pieza dura ${min} min: la exportación tardará y puede usar mucha memoria.`,
     restored: 'Ajustes restablecidos.',
   },
+
+  footer: { openSource: 'Free & Open Source', repo: 'GitHub', createdBy: 'Creado por' },
+
+  sections: { notesColor: 'Paleta', notesShape: 'Forma', notesFinish: 'Acabado', keysColors: 'Colores', keysSize: 'Tamaño', sceneBg: 'Fondo y caída' },
 
   unsupported: {
     title: 'Tu navegador no puede ejecutar MidiTaki',

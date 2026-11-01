@@ -59,33 +59,35 @@ export function ExportDialog() {
         <h2>{t.export.title}</h2>
 
         {!running && ex.phase !== 'done' && <>
-          <div className="seg-row">
-            <span>{t.export.format}</span>
-            <b>{format === 'landscape' ? t.top.landscape : t.top.portrait}</b>
-            <span className="muted num">{size.width}×{size.height} · 60 fps</span>
-          </div>
-
-          <div className="seg-row"><span>{t.export.resolution}</span>
-            <div className="seg">
-              {([720, 1080] as ExportResolution[]).map((r) => (
-                <button key={r} className={ex.resolution === r ? 'on' : ''} onClick={() => ex.patch({ resolution: r })}>{r}p</button>
-              ))}
+          <div className="card">
+            <div className="seg-row">
+              <span>{t.export.format}</span>
+              <b>{format === 'landscape' ? t.top.landscape : t.top.portrait}</b>
+              <span className="muted num">{size.width}×{size.height} · 60 fps</span>
             </div>
-          </div>
 
-          <div className="seg-row"><span>{t.export.content}</span>
-            <div className="seg">
-              <button className={!withAudio ? 'on' : ''} onClick={() => ex.patch({ withAudio: false })}>{t.export.videoOnly}</button>
-              <button className={withAudio ? 'on' : ''} disabled={!audioOk} onClick={() => ex.patch({ withAudio: true })}>{t.export.videoAudio}</button>
+            <div className="seg-row"><span>{t.export.resolution}</span>
+              <div className="seg">
+                {([720, 1080] as ExportResolution[]).map((r) => (
+                  <button key={r} className={ex.resolution === r ? 'on' : ''} onClick={() => ex.patch({ resolution: r })}>{r}p</button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="seg-row"><span>{t.export.lead}</span>
-            <input type="number" min={0} max={10} step={0.5} value={ex.leadIn}
-              onChange={(e) => ex.patch({ leadIn: Math.min(10, Math.max(0, Number(e.target.value))) })} />
-            <span>{t.export.tail}</span>
-            <input type="number" min={0} max={10} step={0.5} value={ex.tail}
-              onChange={(e) => ex.patch({ tail: Math.min(10, Math.max(0, Number(e.target.value))) })} />
+            <div className="seg-row"><span>{t.export.content}</span>
+              <div className="seg">
+                <button className={!withAudio ? 'on' : ''} onClick={() => ex.patch({ withAudio: false })}>{t.export.videoOnly}</button>
+                <button className={withAudio ? 'on' : ''} disabled={!audioOk} onClick={() => ex.patch({ withAudio: true })}>{t.export.videoAudio}</button>
+              </div>
+            </div>
+
+            <div className="seg-row"><span>{t.export.lead}</span>
+              <input type="number" min={0} max={10} step={0.5} value={ex.leadIn}
+                onChange={(e) => ex.patch({ leadIn: Math.min(10, Math.max(0, Number(e.target.value))) })} />
+              <span>{t.export.tail}</span>
+              <input type="number" min={0} max={10} step={0.5} value={ex.tail}
+                onChange={(e) => ex.patch({ tail: Math.min(10, Math.max(0, Number(e.target.value))) })} />
+            </div>
           </div>
 
           <p className="muted">
