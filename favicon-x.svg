@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+ <!-- Fondo principal claro -->
+
+ <!-- Notas cayendo con tonos de acento de la paleta -->
+ <!-- Línea base oscura que representa el teclado / punto de impacto -->
+ <g class="layer" display="inline">
+  <title>Layer 1</title>
+  <rect width="512" height="512" rx="112" fill="#8B83FF" id="svg_1" opacity="0.4"/>
+  <!-- Nota 1 (más alta, más difusa/lejana) -->
+  <rect x="94" y="219" width="59" height="144" rx="14" fill="#615ddd" id="svg_3"/>
+  <!-- Nota 2 (central, principal) -->
+  <!-- Nota 3 (derecha, más corta) -->
+  <rect x="260" y="152" width="35" height="166" rx="14" fill="#8b83ff" opacity="0.9" id="svg_5"/>
+  <rect x="86" y="390" width="340" height="12" rx="6" fill="#0C0D13" id="svg_6"/>
+  <polyline fill="none" stroke-linecap="round" opacity="0.5" points="20.5,22 " id="svg_8"/>
+  <rect x="358" y="106" width="59" height="167" rx="16" fill="#c584ff" id="svg_13"/>
+ </g>
+</svg>

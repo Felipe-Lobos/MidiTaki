@@ -1,19 +1,90 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/MidiTaki/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>midi-fall</title>
-    <script type="module" crossorigin src="/MidiTaki/assets/index-ZRqqwK93.js"></script>
+
+    <title>MidiTaki — De MIDI a video de notas en cascada (piano)</title>
+    <meta name="description" content="Convierte un MIDI de piano en un video MP4 de notas cayendo, gratis y en tu navegador. Free MIDI to piano falling-notes video maker, open source." />
+    <meta name="keywords" content="midi a video, video de piano, notas cayendo, notas en cascada, visualizador midi, piano roll, exportar mp4, midi to video, piano falling notes, falling notes video, midi visualizer, piano tutorial video maker" />
+    <meta name="author" content="Felipe Lobos" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://felipe-lobos.github.io/MidiTaki/" />
+    <!-- Google Search Console (verificación por etiqueta): descomenta y pega tu código
+    <meta name="google-site-verification" content="TU_CODIGO" />
+    -->
+
+    <meta name="theme-color" content="#0c0d13" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" type="image/svg+xml" href="/MidiTaki/favicon.svg" />
+    <link rel="apple-touch-icon" href="/MidiTaki/apple-touch-icon.png" />
+
+    <!-- Open Graph (Facebook, WhatsApp, Discord, LinkedIn…) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MidiTaki" />
+    <meta property="og:title" content="MidiTaki — De MIDI a video de notas en cascada" />
+    <meta property="og:description" content="Convierte un MIDI de piano en video MP4 de notas cayendo, gratis y en tu navegador. MIDI to piano falling-notes video, free and open source." />
+    <meta property="og:url" content="https://felipe-lobos.github.io/MidiTaki/" />
+    <meta property="og:image" content="https://felipe-lobos.github.io/MidiTaki/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="MidiTaki: notas de piano cayendo sobre un teclado, con el texto «De MIDI a video de notas en cascada»" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MidiTaki — De MIDI a video de notas en cascada" />
+    <meta name="twitter:description" content="Convierte un MIDI de piano en video MP4 de notas cayendo, gratis y en tu navegador. Free MIDI to piano falling-notes video maker." />
+    <meta name="twitter:image" content="https://felipe-lobos.github.io/MidiTaki/og-image.png" />
+    <meta name="twitter:image:alt" content="MidiTaki: notas de piano cayendo sobre un teclado" />
+
+    <!-- Datos estructurados (schema.org) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "MidiTaki",
+      "url": "https://felipe-lobos.github.io/MidiTaki/",
+      "description": "Convierte un MIDI de piano en un video MP4 de notas cayendo, con sonido de piano, colores, efectos y partículas personalizables. Todo se procesa en el navegador. / Turns a piano MIDI file into a falling-notes MP4 video, entirely in your browser.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any (video export requires a Chromium-based browser such as Chrome or Edge)",
+      "browserRequirements": "Requires WebGL, Web Audio and WebCodecs (Chrome or Edge recommended)",
+      "inLanguage": "es",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Carga archivos MIDI de piano / Loads piano MIDI files",
+        "Notas en cascada sobre un teclado / Falling notes over a piano keyboard",
+        "Colores, brillo, relieve y partículas personalizables / Customizable colors, glow, relief and particles",
+        "Exporta video MP4 a 60 fps en 720p o 1080p, horizontal o vertical / Exports 60 fps MP4 at 720p or 1080p, landscape or portrait",
+        "Sin cuentas ni subidas: todo en tu navegador / No accounts, no uploads: runs fully in your browser"
+      ],
+      "author": { "@type": "Person", "name": "Felipe Lobos", "url": "https://github.com/Felipe-Lobos" },
+      "sameAs": ["https://github.com/Felipe-Lobos/MidiTaki"]
+    }
+    </script>
+
+    <style>html,body{color:#f1f2f7;background:#0c0d13;margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif}.boot{text-align:center;max-width:560px;margin:18vh auto 0;padding:0 20px}.boot h1{margin:0 0 12px;font-size:32px}.boot p{color:#969baf;margin:0 0 8px;line-height:1.5}</style>
+    <script type="module" crossorigin src="/MidiTaki/assets/index-CQQL7-6y.js"></script>
     <link rel="modulepreload" crossorigin href="/MidiTaki/assets/CanvasPool-B6ss5Z8O.js">
     <link rel="modulepreload" crossorigin href="/MidiTaki/assets/canvasUtils-Bi8n_U_e.js">
     <link rel="modulepreload" crossorigin href="/MidiTaki/assets/RenderTargetSystem-CvP6lmL3.js">
     <link rel="modulepreload" crossorigin href="/MidiTaki/assets/getTextureBatchBindGroup-B8f9B29r.js">
     <link rel="modulepreload" crossorigin href="/MidiTaki/assets/getTexelRangeRects-X1bO11Qb.js">
-    <link rel="stylesheet" crossorigin href="/MidiTaki/assets/index-Dy4vb0jj.css">
+    <link rel="stylesheet" crossorigin href="/MidiTaki/assets/index-DBSxWFvt.css">
   </head>
   <body>
     <div id="root"></div>
+    <!-- Solo se muestra si el navegador no ejecuta JavaScript (sin parpadeo para el resto) -->
+    <noscript>
+      <main class="boot">
+        <h1>MidiTaki</h1>
+        <p>Convierte un archivo MIDI de piano en un video de notas en cascada, con sonido, colores y efectos personalizables. Gratis, de código abierto y 100 % en tu navegador.</p>
+        <p lang="en">Turn a piano MIDI file into a falling-notes video with customizable colors, effects and sound. Free, open source, and running entirely in your browser.</p>
+        <p>MidiTaki necesita JavaScript activado. / MidiTaki requires JavaScript.</p>
+      </main>
+    </noscript>
   </body>
 </html>
