@@ -42,18 +42,21 @@ export function SidePanel() {
       <div className="panel">
         {tab === 'notes' && <>
           <div className="card">
+            <p className="group-title">{t.sections.notesColor}</p>
             <Segmented label={t.notes.color} value={style.colorMode} onChange={(v) => patch({ colorMode: v })}
               options={[{ value: 'solid', text: t.notes.solid }, { value: 'pitch', text: t.notes.byPitch }]} />
             {color('noteColor', style.colorMode === 'pitch' ? t.notes.bass : t.notes.color)}
             {style.colorMode === 'pitch' && color('noteColor2', t.notes.treble)}
           </div>
           <div className="card">
+            <p className="group-title">{t.sections.notesShape}</p>
             {num('noteRadius', t.notes.radius, 0, 24, 1, ' px')}
             {num('noteGap', t.notes.gap, 0, 8, 1, ' px')}
             {num('noteOpacity', t.notes.opacity, 0.2, 1)}
             {bool('velocityOpacity', t.notes.velocity)}
           </div>
           <div className="card">
+            <p className="group-title">{t.sections.notesFinish}</p>
             <Segmented label={t.notes.fill} value={style.noteFill} onChange={(v) => patch({ noteFill: v })}
               options={[{ value: 'solid', text: t.notes.solid }, { value: 'outline', text: t.notes.hollow }]} />
             {style.noteFill === 'outline' && num('outlineWidth', t.notes.outline, 1, 8, 1, ' px')}
@@ -68,6 +71,7 @@ export function SidePanel() {
             </div>
           )}
           <div className="card">
+            <p className="group-title">{t.sections.keysColors}</p>
             {color('whiteKey', t.keyboard.white)}
             {color('blackKey', t.keyboard.black)}
           </div>
@@ -77,6 +81,7 @@ export function SidePanel() {
             {!style.keySync && color('pressedColor', t.keyboard.pressedColor)}
           </div>
           <div className="card">
+            <p className="group-title">{t.sections.keysSize}</p>
             {num('keyboardRatio', t.keyboard.height, 0.08, 0.3)}
             {num('keyPress', t.keyboard.press, 0, 12, 1, ' px')}
           </div>
@@ -102,6 +107,7 @@ export function SidePanel() {
 
         {tab === 'scene' && <>
           <div className="card">
+            <p className="group-title">{t.sections.sceneBg}</p>
             {color('background', t.scene.background)}
             {num('fallSeconds', t.scene.fall, 1, 8, 0.1, ' s')}
           </div>

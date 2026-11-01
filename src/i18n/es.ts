@@ -8,7 +8,7 @@ export const es = {
   top: {
     loadMidi: 'Cargar MIDI', noFile: 'Ningún archivo', effects: 'Efectos',
     effectsTitle: 'Solo afecta a la vista previa, no al video exportado',
-    keyboardAuto: 'Teclado: automático', keys: (n: number) => `${n} teclas`,
+    keyboardAuto: 'Automático', keys: (n: number) => `${n} teclas`, keyboardLabel: 'Cantidad de teclas',
     landscape: 'Horizontal 16:9', portrait: 'Vertical 9:16',
     landscapeShort: '16:9', portraitShort: '9:16',
     export: 'Exportar', exportUnavailable: 'Este navegador no puede exportar video', about: 'Acerca de',
@@ -160,6 +160,8 @@ export const es = {
   },
 
   footer: { openSource: 'Free & Open Source', repo: 'GitHub', createdBy: 'Creado por' },
+
+  sections: { notesColor: 'Paleta', notesShape: 'Forma', notesFinish: 'Acabado', keysColors: 'Colores', keysSize: 'Tamaño', sceneBg: 'Fondo y caída' },
 
   unsupported: {
     title: 'Tu navegador no puede ejecutar MidiTaki',

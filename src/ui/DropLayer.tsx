@@ -22,7 +22,6 @@ export function EmptyCard() {
         </label>
         <ol>{t.drop.steps.map((s) => <li key={s}>{s}</li>)}</ol>
         <p className="muted">{t.drop.privacy}</p>
-        <p className="muted">{t.drop.keys}</p>
       </div>
     </div>
   );

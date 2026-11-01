@@ -28,7 +28,7 @@
 
   --edge: 20px;      /* margen lateral de barra, contenido y footer */
   --gap: 12px;       /* separación general entre bloques */
-  --side-w: 300px;   /* ancho del panel de ajustes */
+  --side-w: 320px;   /* ancho del panel de ajustes */
 }
 
 * { box-sizing: border-box; }
@@ -41,13 +41,13 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .app { display: grid; grid-template-rows: auto auto 1fr auto; height: 100%; }
 .topbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; padding: 8px var(--edge); min-height: 58px; background: var(--panel); border-bottom: 1px solid var(--border); }
 .brand { display: flex; align-items: center; gap: 10px; flex: none; }
-.logo { width: 34px; height: 34px; display: block; flex: none; }
+.logo { width: 36px; height: 36px; display: block; flex: none; }
 .logo-bg { fill: var(--accent); }
 .logo-keys { fill: var(--text); }
 .logo-split { stroke: var(--accent); stroke-width: 1.2; fill: none; }
 .logo-black { fill: var(--bg); }
 .brand-text { display: flex; flex-direction: column; gap: 3px; }
-.brand-name { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 19px; line-height: 1; letter-spacing: -.01em; color: var(--text); }
+.brand-name { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 22px; line-height: 1; letter-spacing: -.01em; color: var(--text); }
 .brand-name em { font-style: normal; color: var(--accent); }
 .brand-tag { font-size: 9.5px; font-weight: 500; line-height: 1; letter-spacing: .12em; text-transform: uppercase; color: var(--text-2); white-space: nowrap; }
 .tb-file { display: flex; align-items: center; gap: 10px; flex: 1 1 0; min-width: 0; }
@@ -92,6 +92,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 30px; padding: 0 var(--edge); font-size: 12px; color: var(--text-2); border-top: 1px solid var(--border); }
 .footer span, .footer a { display: inline-flex; align-items: center; gap: 6px; }
 .footer .f-group { display: flex; align-items: center; gap: 16px; }
+.footer .f-keys { display: block; flex: 1; min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .footer strong { color: var(--text); font-weight: 600; }
 .footer a { color: var(--text-2); text-decoration: none; }
 .footer a:hover { color: var(--text); text-decoration: underline; }
@@ -108,6 +109,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', system-u
 .btn.on { background: var(--surface-hover); color: var(--text); }
 select { -webkit-appearance: none; appearance: none; background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23969baf' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E") right 9px center / 12px 12px no-repeat; color: inherit; border: 0; border-radius: 8px; padding: 8px 30px 8px 12px; font: inherit; cursor: pointer; margin-left: auto; }
 select:hover { background-color: var(--surface-hover); }
+select.inline { min-width: 92px; }
 select option { background: var(--surface); color: var(--text); }
 select.inline { margin-left: 0; }
 .muted { color: var(--text-2); font-size: 13px; }
@@ -153,17 +155,18 @@ input[type=checkbox]:checked { background-color: var(--text); border-color: var(
 .react-colorful { width: 100% !important; }
 .toggle { flex-direction: row; justify-content: space-between; align-items: center; cursor: pointer; }
 .seg { display: flex; background: var(--surface); border-radius: 8px; padding: 3px; }
-.seg button { flex: 1; background: none; border: 0; color: inherit; padding: 6px; border-radius: 6px; cursor: pointer; font: inherit; opacity: .6; }
-.seg button:hover:not(:disabled):not(.on) { opacity: .9; }
-.seg button.on { background: var(--surface-hover); color: var(--text); opacity: 1; }
-.seg button:disabled { opacity: .3; cursor: default; }
+.seg button { flex: 1; background: none; border: 0; color: var(--text-2); padding: 6px; border-radius: 6px; cursor: pointer; font: inherit; }
+.seg button:hover:not(:disabled):not(.on) { color: var(--text); }
+.seg button.on { background: #353b54; color: var(--text); box-shadow: inset 0 0 0 1px #4a5170; }
+.seg button:disabled { opacity: .4; cursor: default; }
 .seg.wrap { flex-wrap: wrap; gap: 3px; }
 .seg.wrap button { flex: 1 1 30%; }
 .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .warn { margin: 0; padding: 8px 10px; background: var(--warn-bg); border-radius: 8px; color: var(--warn-fg); box-shadow: inset 3px 0 0 var(--warn-fg); }
 .warn p { margin: 0 0 8px; }
 .indent { display: flex; flex-direction: column; gap: 14px; margin-left: 4px; padding-left: 12px; border-left: 2px solid var(--border-soft); }
-.group-title { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-2); }
+.group-title { margin: 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text-2); }
+.card > .group-title:first-child { margin-bottom: -4px; }
 
 /* ---- Presets con vista previa ---- */
 .preset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
@@ -216,6 +219,7 @@ input[type=checkbox]:checked { background-color: var(--text); border-color: var(
 .drop-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; font-size: 22px; background: #0c0d13d9; border: 3px dashed var(--accent); pointer-events: none; }
 
 /* ---- Barra superior en anchos medios: se oculta el nombre del archivo, luego el texto del estado ---- */
+@media (max-width: 1250px) { .footer .f-keys { display: none; } }
 @media (max-width: 1100px) { .brand-tag { display: none; } }
 @media (max-width: 1000px) { .tb-file { min-width: max-content; } .tb-file .file-name { display: none; } }
 @media (max-width: 900px) { .chip span { display: none; } .chip { padding: 6px; } }

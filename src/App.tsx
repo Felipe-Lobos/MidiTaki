@@ -10,7 +10,7 @@ import { useShortcuts } from './ui/useShortcuts';
 import { Timeline } from './ui/Timeline';
 import { Footer } from './ui/Footer';
 import { InfoIcon, PanelIcon } from './ui/TopbarIcons';
-import { Logo } from './ui/Logo.tsx';
+import { Logo } from './ui/Logo';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
 import { useSettingsStore } from './store/settingsStore';
@@ -84,7 +84,7 @@ function Main() {
         </div>
 
         <div className="tb-view">
-          <select value={rangeKey} onChange={(e) => setRangeKey(e.target.value)}>
+          <select value={rangeKey} title={t.top.keyboardLabel} aria-label={t.top.keyboardLabel} onChange={(e) => setRangeKey(e.target.value)}>
             {KEYBOARD_OPTIONS.map((k) => (
               <option key={k} value={k}>{k === 'auto' ? t.top.keyboardAuto : t.top.keys(Number(k))}</option>
             ))}
