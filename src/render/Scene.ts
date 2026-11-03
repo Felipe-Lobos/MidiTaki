@@ -185,7 +185,9 @@ export class Scene {
   private get hitY() { return this.h * (1 - this.style.keyboardRatio); }
   private get inset() {
     const st = this.style;
-    return Math.max(1, Math.round(Math.max(st.noteRadius, st.noteFill === 'outline' ? st.outlineWidth : 0)));
+    const outline = st.noteFill === 'outline';
+    // En hueco, +1 px de margen: el corte del 9-slice cae en zona transparente y el filtro bilineal no arrastra color del trazo hacia el interior
+    return Math.max(1, Math.round(Math.max(st.noteRadius, outline ? st.outlineWidth : 0)) + (outline ? 1 : 0));
   }
 
   /**
