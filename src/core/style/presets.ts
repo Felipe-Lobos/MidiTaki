@@ -30,17 +30,17 @@ export const PRESETS: { id: PresetId; group: PresetGroup; style: Partial<Style> 
       velocityOpacity: false, showHitLine: false, glow: false, relief: 0 } },
   // Fondo claro: sin brillo ni partículas (se mezclan en aditivo y en fondo claro no se ven)
   { id: 'paper', group: 'basic', style: {
-      background: '#f3efe6', colorMode: 'pitch', noteColor: '#2b6cb0', noteColor2: '#c05621',
+      background: '#f3efe6', noteLabels: 'solfege', colorMode: 'pitch', noteColor: '#2b6cb0', noteColor2: '#c05621',
       pressedColor: '#2b6cb0', hitLineColor: '#2b6cb0', noteRadius: 6, velocityOpacity: false, glow: false,
       whiteKey: '#ffffff', blackKey: '#23232b', showOctaveLines: true, octaveLineOpacity: 0.12 } },
   { id: 'mono', group: 'basic', style: {
       background: '#0a0a0b', noteColor: '#e6e6e6', noteRadius: 3, glow: false, relief: 0.35,
       hitLineSync: false, hitLineColor: '#ffffff', whiteKey: '#e9e9e9', blackKey: '#111111' } },
   { id: 'slate', group: 'basic', style: {
-      background: '#13161c', colorMode: 'pitch', noteColor: '#7aa2f7', noteColor2: '#bb9af7', noteRadius: 6,
+      background: '#13161c', noteLabels: 'letters', colorMode: 'pitch', noteColor: '#7aa2f7', noteColor2: '#bb9af7', noteRadius: 6,
       glow: false, relief: 0.5, showOctaveLines: true, octaveLineOpacity: 0.14, whiteKey: '#e6e9f0', blackKey: '#171a21' } },
   { id: 'pastel', group: 'basic', style: {
-      background: '#1c1b29', colorMode: 'pitch', noteColor: '#ffb3c7', noteColor2: '#a8d8ff', noteRadius: 14, noteGap: 3,
+      background: '#1c1b29', noteLabels: 'solfege', colorMode: 'pitch', noteColor: '#ffb3c7', noteColor2: '#a8d8ff', noteRadius: 14, noteGap: 3,
       velocityOpacity: false, glowStrength: 0.6, glowRadius: 8, relief: 0.3, fallSeconds: 3.5,
       whiteKey: '#f6f1f4', blackKey: '#2b2a3a' } },
 

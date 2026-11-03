@@ -44,6 +44,13 @@ export const es = {
     radius: 'Esquinas', gap: 'Separación', opacity: 'Opacidad',
     velocity: 'La fuerza (velocity) afecta la opacidad',
     fill: 'Relleno', hollow: 'Hueco', outline: 'Grosor del borde',
+    labelFormat: 'Nombre de la nota', labelsOff: 'Ninguna', solfege: 'Do Re Mi', letters: 'C D E',
+    labelSize: 'Tamaño del texto', labelOpacity: 'Opacidad del texto',
+  },
+  // Nombres de las 12 notas (sostenidos), empezando por Do / C
+  noteNames: {
+    solfege: ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'],
+    letters: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
   },
   keyboard: {
     outside: (n: number) => `${n} notas quedan fuera del rango del teclado y no se dibujan.`,
@@ -170,7 +177,7 @@ export const es = {
 
   footer: { openSource: 'Free & Open Source', repo: 'GitHub', createdBy: 'Creado por' },
 
-  sections: { notesColor: 'Paleta', notesShape: 'Forma', notesFinish: 'Acabado', keysColors: 'Colores', keysSize: 'Tamaño', sceneBg: 'Fondo y caída' },
+  sections: { notesColor: 'Paleta', notesShape: 'Forma', notesLabels: 'Etiquetas', notesFinish: 'Acabado', keysColors: 'Colores', keysSize: 'Tamaño', sceneBg: 'Fondo y caída' },
 
   unsupported: {
     title: 'Tu navegador no puede ejecutar MidiTaki',

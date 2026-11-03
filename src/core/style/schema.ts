@@ -1,4 +1,5 @@
 export type HitLineStyle = 'straight' | 'neon' | 'mist' | 'fog' | 'electric' | 'static';
+export type NoteLabelMode = 'off' | 'solfege' | 'letters'; // sin etiqueta, Do Re Mi o C D E
 export type ParticleType =
   | 'sparks' | 'embers' | 'trails' | 'stars' | 'friction' | 'electric'
   | 'smoke' | 'bubbles' | 'petals' | 'fireflies' | 'pixels' | 'dust';
@@ -17,6 +18,9 @@ export interface Style {
   noteFill: 'solid' | 'outline'; // relleno o hueco (solo borde)
   outlineWidth: number;         // px, grosor del borde en modo hueco
   velocityOpacity: boolean;     // la fuerza (velocity) afecta la opacidad
+  noteLabels: NoteLabelMode;    // nombre de la nota escrito en su base
+  noteLabelSize: number;        // 1 = el mayor tamaño que cabe en la nota; menos = más pequeño
+  noteLabelOpacity: number;
   // Teclado
   whiteKey: string;
   blackKey: string;
@@ -72,6 +76,9 @@ export const defaultStyle: Style = {
   noteFill: 'solid',
   outlineWidth: 3,
   velocityOpacity: true,
+  noteLabels: 'off',
+  noteLabelSize: 1,
+  noteLabelOpacity: 1,
   whiteKey: '#f2f2f2',
   blackKey: '#15151a',
   pressedColor: '#4cc9f0',

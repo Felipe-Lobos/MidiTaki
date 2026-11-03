@@ -60,6 +60,15 @@ export function SidePanel() {
             {bool('velocityOpacity', t.notes.velocity)}
           </div>
           <div className="card">
+            <p className="group-title">{t.sections.notesLabels}</p>
+            <Segmented label={t.notes.labelFormat} value={style.noteLabels} onChange={(v) => patch({ noteLabels: v })}
+              options={[{ value: 'off', text: t.notes.labelsOff }, { value: 'solfege', text: t.notes.solfege }, { value: 'letters', text: t.notes.letters }]} />
+            {style.noteLabels !== 'off' && <>
+              {num('noteLabelSize', t.notes.labelSize, 0.5, 1.2, 0.05)}
+              {num('noteLabelOpacity', t.notes.labelOpacity, 0.2, 1)}
+            </>}
+          </div>
+          <div className="card">
             <p className="group-title">{t.sections.notesFinish}</p>
             <Segmented label={t.notes.fill} value={style.noteFill} onChange={(v) => patch({ noteFill: v })}
               options={[{ value: 'solid', text: t.notes.solid }, { value: 'outline', text: t.notes.hollow }]} />
