@@ -10,10 +10,11 @@ export function pickMidi(e: ChangeEvent<HTMLInputElement>) {
 }
 
 /** Tarjeta de bienvenida sobre el canvas mientras no hay ninguna canción cargada. */
-export function EmptyCard() {
+export function EmptyCard(p: { onClose: () => void }) {
   return (
     <div className="drop-layer">
       <div className="drop-card">
+        <button className="card-close" title={t.common.close} aria-label={t.common.close} onClick={p.onClose}>✕</button>
         <h2>{t.drop.title}</h2>
         <p className="muted">{t.drop.or}</p>
         <label className="btn primary">

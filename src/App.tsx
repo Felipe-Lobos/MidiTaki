@@ -9,7 +9,7 @@ import { useMidiDrop } from './ui/useMidiDrop';
 import { useShortcuts } from './ui/useShortcuts';
 import { Timeline } from './ui/Timeline';
 import { Footer } from './ui/Footer';
-import { InfoIcon, PanelIcon } from './ui/TopbarIcons';
+import { ChevronIcon, InfoIcon, SlidersIcon } from './ui/TopbarIcons';
 import { Logo } from './ui/Logo';
 import { useSongStore } from './store/songStore';
 import { usePlaybackStore } from './store/playbackStore';
@@ -42,7 +42,8 @@ function Main() {
   const fall = useStyleStore((s) => s.style.fallSeconds);
   const tail = useExportStore((s) => s.tail);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const { panelOpen, togglePanel } = useUiStore();
+  const [welcomeClosed, setWelcomeClosed] = useState(false); // la tarjeta de bienvenida se puede cerrar
+  const { panelOpen, setPanelOpen } = useUiStore();
   const dragging = useMidiDrop();
   useShortcuts(!aboutOpen);
   const b = song ? previewBounds(song, leadTail, fall, tail) : { min: 0, max: 1 };
@@ -65,7 +66,7 @@ function Main() {
         <div className="brand" aria-label={t.app.name}>
           <Logo />
           <div className="brand-text">
-            <span className="brand-name">{t.app.brandMidi}<em>{t.app.brandTaki}</em></span>
+            <h1 className="brand-name">{t.app.brandMidi}<em>{t.app.brandTaki}</em></h1>
             <span className="brand-tag">{t.app.brandTag}</span>
           </div>
         </div>
@@ -98,8 +99,6 @@ function Main() {
 
         <div className="tb-actions">
           <button className="icon-btn" title={t.top.about} aria-label={t.top.about} onClick={() => setAboutOpen(true)}><InfoIcon /></button>
-          <button className={panelOpen ? 'icon-btn on' : 'icon-btn'} title={t.top.panelTitle} aria-label={t.top.panelTitle}
-            aria-pressed={panelOpen} onClick={togglePanel}><PanelIcon /></button>
           <button className="btn primary" disabled={!song || !compat.webCodecs}
             title={compat.webCodecs ? undefined : t.top.exportUnavailable}
             onClick={() => {
@@ -111,15 +110,22 @@ function Main() {
 
       <NoticeBar />
 
-      <div className="main">
+      <div className={panelOpen ? 'main' : 'main panel-closed'}>
         <div className={`viewer ${format}`}>
           <div className="stage">
             <PreviewCanvas />
-            {!song && <EmptyCard />}
+            {!song && !welcomeClosed && <EmptyCard onClose={() => setWelcomeClosed(true)} />}
           </div>
           <Timeline min={b.min} max={b.max} />
         </div>
         <SidePanel />
+        {!panelOpen && (
+          <button className="panel-tab" title={t.top.showSettings} aria-label={t.top.showSettings} onClick={() => setPanelOpen(true)}>
+            <span className="pt-chev"><ChevronIcon /></span>
+            <span className="pt-sliders"><SlidersIcon /></span>
+            <span className="pt-label">{t.top.settings}</span>
+          </button>
+        )}
       </div>
 
       <Footer />

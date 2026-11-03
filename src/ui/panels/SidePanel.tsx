@@ -8,6 +8,7 @@ import { PRESETS } from '../../core/style/presets';
 import { PresetPreview } from './PresetCard';
 import { TABS, useUiStore } from '../../store/uiStore';
 import { exportPreset, importPreset, sanitizeStyle } from '../../core/style/presetIO';
+import { ChevronIcon } from '../TopbarIcons';
 import { t } from '../../i18n';
 
 export function SidePanel() {
@@ -32,11 +33,14 @@ export function SidePanel() {
 
   return (
     <aside className={panelOpen ? 'side' : 'side closed'}>
+      <div className="side-head">
+        <span className="side-title">{t.top.settings}</span>
+        <button className="icon-btn side-collapse" title={t.top.hideSettings} aria-label={t.top.hideSettings} onClick={() => setPanelOpen(false)}><ChevronIcon /></button>
+      </div>
       <nav className="tabs">
         {TABS.map((id) => (
           <button key={id} className={id === tab ? 'on' : ''} onClick={() => setTab(id)}>{t.tabs[id]}</button>
         ))}
-        <button className="side-close" title={t.top.closePanel} aria-label={t.top.closePanel} onClick={() => setPanelOpen(false)}>✕</button>
       </nav>
 
       <div className="panel">

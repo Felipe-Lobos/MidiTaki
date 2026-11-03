@@ -13,6 +13,7 @@ export const es = {
     landscapeShort: '16:9', portraitShort: '9:16',
     export: 'Exportar', exportUnavailable: 'Este navegador no puede exportar video', about: 'Acerca de',
     panel: '☰ Panel', panelTitle: 'Mostrar u ocultar el panel de ajustes', closePanel: 'Cerrar panel',
+    settings: 'Ajustes', showSettings: 'Mostrar ajustes', hideSettings: 'Ocultar ajustes',
   },
   audioStatus: {
     idle: '', loading: 'Cargando piano…', ready: 'Piano listo',
@@ -125,7 +126,7 @@ export const es = {
     description: 'MidiTaki convierte archivos MIDI de piano en videos de notas en cascada. «Taki» (滝) significa cascada en japonés.',
     privacy: 'Privacidad: tus archivos MIDI y los videos que generas nunca salen de tu navegador. MidiTaki no usa cuentas ni analíticas.',
     createdBy: 'Creado por',
-    openSource: 'Código abierto', license: (name: string) => `Licencia: ${name}`, repo: 'Repositorio',
+    openSource: 'Free & Open Source', license: (name: string) => `Licencia: ${name}`, repo: 'Repositorio',
     creditsTitle: 'Créditos',
     pianoCredit: 'Piano: «Salamander Grand Piano V3», de Alexander Holm, bajo licencia CC BY 3.0. Las muestras se reproducen afinadas y mezcladas para cada nota.',
     creditAsk: 'Si publicas un video con el audio del piano, la licencia pide atribución. Texto sugerido:',
