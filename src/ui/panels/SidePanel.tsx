@@ -4,7 +4,7 @@ import { useStyleStore } from '../../store/styleStore';
 import { useSongStore } from '../../store/songStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { defaultStyle, type BoolKey, type ColorKey, type NumKey } from '../../core/style/schema';
-import { PRESETS } from '../../core/style/presets';
+import { PRESET_GROUPS, PRESETS } from '../../core/style/presets';
 import { PresetPreview } from './PresetCard';
 import { TABS, useUiStore } from '../../store/uiStore';
 import { exportPreset, importPreset, sanitizeStyle } from '../../core/style/presetIO';
@@ -179,18 +179,23 @@ export function SidePanel() {
         </>}
 
         {tab === 'presets' && <>
-          <div className="preset-grid">
-            {PRESETS.map((p) => {
-              const full = sanitizeStyle({ ...defaultStyle, ...p.style });
-              const on = JSON.stringify(full) === JSON.stringify(style); // el preset aplicado y sin cambios
-              return (
-                <button key={p.id} className={on ? 'preset on' : 'preset'} onClick={() => apply(p.style)}>
-                  <PresetPreview style={full} />
-                  <span>{t.presetNames[p.id]}</span>
-                </button>
-              );
-            })}
-          </div>
+          {PRESET_GROUPS.map((g) => (
+            <section key={g} className="preset-group">
+              <p className="group-title">{t.presetGroups[g]}</p>
+              <div className="preset-grid">
+                {PRESETS.filter((p) => p.group === g).map((p) => {
+                  const full = sanitizeStyle({ ...defaultStyle, ...p.style });
+                  const on = JSON.stringify(full) === JSON.stringify(style); // el preset aplicado y sin cambios
+                  return (
+                    <button key={p.id} className={on ? 'preset on' : 'preset'} onClick={() => apply(p.style)}>
+                      <PresetPreview style={full} />
+                      <span>{t.presetNames[p.id]}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
           <div className="presets">
             <button className="btn" onClick={() => exportPreset(style)}>{t.presets.exportJson}</button>
             <label className="btn">

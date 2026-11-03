@@ -86,8 +86,15 @@ export const es = {
     invalidJson: 'El archivo no es un JSON válido.', importFailed: 'No se pudo importar el preset.',
   },
   presetNames: {
-    ocean: 'Océano', neon: 'Neón', neonHollow: 'Neón hueco', sunset: 'Atardecer', fire: 'Fuego',
-    aurora: 'Aurora', steel: 'Acero', midnight: 'Medianoche', paper: 'Papel', classic: 'Clásico',
+    ocean: 'Océano', classic: 'Clásico', paper: 'Papel', mono: 'Monocromo', slate: 'Pizarra', pastel: 'Pastel',
+    fire: 'Fuego', ice: 'Hielo', lightning: 'Rayo', deepwater: 'Agua profunda', forest: 'Bosque', lava: 'Lava',
+    sunset: 'Atardecer', aurora: 'Aurora', midnight: 'Medianoche', galaxy: 'Galaxia', nebula: 'Nebulosa', dawn: 'Amanecer',
+    neon: 'Neón', neonHollow: 'Neón hueco', synthwave: 'Synthwave', terminal: 'Terminal', arcade: 'Arcade', blueprint: 'Plano técnico', vaporwave: 'Vaporwave',
+    steel: 'Acero', gold: 'Oro', ruby: 'Rubí', emerald: 'Esmeralda', sepia: 'Sepia',
+    autumn: 'Otoño', sakura: 'Sakura', halloween: 'Halloween', christmas: 'Navidad',
+  },
+  presetGroups: {
+    basic: 'Básicos', elements: 'Elementos', sky: 'Cielo y espacio', retro: 'Retro y tecnología', elegant: 'Elegantes', seasons: 'Estaciones y festivos',
   },
 
   export: {

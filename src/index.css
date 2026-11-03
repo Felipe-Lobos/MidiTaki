@@ -179,6 +179,7 @@ input[type=checkbox]:checked { background-color: var(--text); border-color: var(
 .card > .group-title:first-child { margin-bottom: -4px; }
 
 /* ---- Presets con vista previa ---- */
+.preset-group { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
 .preset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 .preset { display: flex; flex-direction: column; gap: 6px; padding: 6px; background: var(--surface); border: 2px solid transparent; border-radius: 10px; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .preset span { padding: 0 2px 2px; font-size: 12.5px; }
