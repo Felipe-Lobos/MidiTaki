@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://felipe-lobos.github.io/miditaki/sitemap.xml
