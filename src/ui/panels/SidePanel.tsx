@@ -153,6 +153,9 @@ export function SidePanel() {
                   { value: 'sparks', text: t.particles.sparks }, { value: 'embers', text: t.particles.embers },
                   { value: 'trails', text: t.particles.trails }, { value: 'stars', text: t.particles.stars },
                   { value: 'friction', text: t.particles.friction }, { value: 'electric', text: t.particles.electric },
+                  { value: 'smoke', text: t.particles.smoke }, { value: 'bubbles', text: t.particles.bubbles },
+                  { value: 'petals', text: t.particles.petals }, { value: 'fireflies', text: t.particles.fireflies },
+                  { value: 'pixels', text: t.particles.pixels }, { value: 'dust', text: t.particles.dust },
                 ]} />
               {num('particleAmount', t.particles.amount, 2, 120, 1, ' /s')}
               {num('particleSize', t.particles.size, 1, 12, 0.5, ' px')}

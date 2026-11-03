@@ -1,5 +1,7 @@
 export type HitLineStyle = 'straight' | 'neon' | 'mist' | 'fog' | 'electric' | 'static';
-export type ParticleType = 'sparks' | 'embers' | 'trails' | 'stars' | 'friction' | 'electric';
+export type ParticleType =
+  | 'sparks' | 'embers' | 'trails' | 'stars' | 'friction' | 'electric'
+  | 'smoke' | 'bubbles' | 'petals' | 'fireflies' | 'pixels' | 'dust';
 
 // TODA la apariencia vive aquí: un objeto plano y serializable (colores en '#rrggbb').
 export interface Style {

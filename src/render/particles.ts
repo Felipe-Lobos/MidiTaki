@@ -20,6 +20,7 @@ export interface PState {
 // Cuántas partículas nacen por segundo y por nota, según el efecto (multiplica a "Cantidad")
 const RATE_FACTOR: Record<ParticleType, number> = {
   sparks: 1, embers: 0.5, trails: 0.2, stars: 0.4, friction: 1.3, electric: 0.25,
+  smoke: 0.2, bubbles: 0.3, petals: 0.25, fireflies: 0.3, pixels: 1, dust: 0.4,
 };
 export const particleRate = (st: Style) => Math.max(1, st.particleAmount * RATE_FACTOR[st.particleType]);
 
@@ -112,6 +113,71 @@ export function computeParticle(
       out.flat = thick / out.size;
       out.alpha = Math.pow(1 - u, 0.8);
       out.glow = Math.max(6, thick * 6);
+      return true;
+    }
+    case 'smoke': { // vapor luminoso: bocanadas grandes y muy tenues que suben, se ensanchan y se disipan (textura: halo suave)
+      const u = age / L;
+      const vv = v * 0.45 * (0.6 + 0.8 * r2);
+      out.x = cx + (r1 - 0.5) * kw * 0.5 + Math.sin(age * (0.9 + r3 * 1.4) + r3 * 6.283) * (6 + spread * 22) * (0.4 + u);
+      out.y = y0 - vv * age;
+      out.size = size * (5 + 7 * u) * (0.8 + 0.4 * r4);
+      out.alpha = Math.min(1, age / 0.4) * (1 - u) * 0.4;
+      return true;
+    }
+    case 'bubbles': { // burbujas: anillos que suben con vaivén, crecen un poco y revientan (se apagan rápido) al final
+      const u = age / L;
+      const vv = v * 0.4 * (0.6 + 0.8 * r2);
+      out.x = cx + (r1 - 0.5) * kw * 0.7 + Math.sin(age * (3 + r3 * 3) + r3 * 6.283) * (3 + spread * 10);
+      out.y = y0 - vv * age;
+      out.size = size * (1.6 + 1.2 * r4) * (0.7 + 0.5 * u);
+      out.alpha = Math.min(1, age / 0.1) * (u > 0.85 ? (1 - u) / 0.15 : 1) * 0.9;
+      out.glow = out.size * 2.2;
+      return true;
+    }
+    case 'petals': { // pétalos: salen hacia arriba, giran, aletean y caen despacio con vaivén
+      const u = age / L;
+      const th = (r1 - 0.5) * spread * Math.PI;
+      const vv = v * 0.55 * (0.5 + 0.5 * r2), g = (1.1 * vv) / L;
+      out.x = cx + (r3 - 0.5) * kw * 0.6 + vv * Math.sin(th) * age + Math.sin(age * (2 + r4 * 2) + r4 * 6.283) * (5 + spread * 12);
+      out.y = y0 - vv * Math.cos(th) * age + 0.5 * g * age * age;
+      out.size = size * 2.6 * (0.8 + 0.5 * r4);
+      out.flat = 0.45 + 0.55 * Math.abs(Math.cos(age * (3 + r2 * 3) + r1 * 6.283)); // aletea al girar
+      out.rot = r3 * Math.PI * 2 + age * (1 + r2 * 2);
+      out.alpha = Math.min(1, age / 0.08) * (1 - u * u);
+      out.glow = out.size * 2.2;
+      return true;
+    }
+    case 'fireflies': { // luciérnagas: puntos con halo que vagan al azar, suben muy poco y parpadean
+      const u = age / L;
+      const R = 10 + spread * 40, ramp = Math.min(1, age);
+      out.x = cx + (r1 - 0.5) * kw * 0.6 + Math.sin(age * (0.8 + r2 * 1.2) + r1 * 6.283) * R * (0.3 + 0.7 * ramp);
+      out.y = y0 - v * 0.18 * age + Math.sin(age * (1.3 + r3 * 1.5) + r4 * 6.283) * R * 0.5 * ramp;
+      out.size = size * (0.8 + 0.4 * r4);
+      out.alpha = Math.min(1, age / 0.2) * (1 - u) * (0.45 + 0.55 * Math.max(0, Math.sin(age * (3 + r3 * 3) + r2 * 6.283)));
+      out.glow = out.size * 5;
+      return true;
+    }
+    case 'pixels': { // píxeles: como las chispas, pero encajados en una cuadrícula y que se apagan a saltos (estilo 8 bits)
+      const u = age / L;
+      const th = (r1 - 0.5) * spread * Math.PI;
+      const vv = v * (0.4 + 0.6 * r2), g = (1.5 * vv) / L;
+      const px = Math.max(2, 2 * Math.round(size / 2)); // lado par: los bordes caen en píxeles enteros
+      const x = cx + (r3 - 0.5) * kw * 0.6 + vv * Math.sin(th) * age;
+      const y = y0 - vv * Math.cos(th) * age + 0.5 * g * age * age;
+      out.x = Math.round(x / px) * px;
+      out.y = Math.round(y / px) * px;
+      out.size = px;
+      out.alpha = Math.ceil((1 - u) * 4) / 4;
+      return true;
+    }
+    case 'dust': { // polvo de luz: motas que flotan casi quietas, a la deriva, con un leve titileo
+      const u = age / L;
+      const ang = r1 * 6.283, sp = v * 0.08 * (0.4 + 0.6 * r2);
+      out.x = cx + (r3 - 0.5) * kw * (1 + spread * 3) + Math.cos(ang) * sp * age;
+      out.y = y0 - r4 * 10 + Math.sin(ang) * sp * age - v * 0.06 * age;
+      out.size = size * (1.2 + 2.2 * r4);
+      out.alpha = Math.min(1, age / 0.4) * Math.pow(1 - u, 1.2) * (0.5 + 0.4 * Math.sin(age * (1 + r2 * 2) + r3 * 6.283));
+      out.glow = out.size * 2.5;
       return true;
     }
     case 'electric': { // rayo en zigzag que parpadea (se re-sortea 24 veces por segundo)

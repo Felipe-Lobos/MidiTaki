@@ -3,14 +3,18 @@ import { GlowFilter } from 'pixi-filters';
 import type { Song } from '../core/midi/types';
 import { buildKeyboardLayout, type KeyRange, type KeyRect } from '../core/keyboard/layout';
 import { visibleNotes } from '../core/timeline/visibleNotes';
-import type { Style } from '../core/style/schema';
+import type { ParticleType, Style } from '../core/style/schema';
 import { HAZE_W, LINE_CFG, jaggedLine, makeBandCanvas, makeHazeCanvas } from './lineFx';
 import { computeParticle, particleLifeFor, particleRate, particleSegments, type PState } from './particles';
 import { contrastColor, hexToNum, lerpColor, noteTint } from '../core/colors/colorMapping';
 
 export type HitRegion = 'notes' | 'keyboard' | 'scene';
 
-interface PartTex { dot: Texture; glow: Texture; star: Texture; streak: Texture; bar: Texture }
+interface PartTex { dot: Texture; glow: Texture; star: Texture; streak: Texture; bar: Texture; ring: Texture; petal: Texture; square: Texture }
+// Textura de cada efecto (los que no aparecen usan el punto)
+const MAIN_TEX: Partial<Record<ParticleType, keyof PartTex>> = {
+  stars: 'star', friction: 'streak', electric: 'bar', smoke: 'glow', bubbles: 'ring', petals: 'petal', pixels: 'square',
+};
 const MAX_FLASHES = 96;  // destellos de tecla a la vez
 const MAX_PARTICLES = 900; // tope de partículas dibujadas a la vez (protege tablets y notas muy densas)
 
@@ -494,6 +498,15 @@ export class Scene {
       }),
       // Tramo uniforme (para los rayos): se estira a lo largo y se gira
       bar: mk((g) => { g.rect(0, 0, 8, 4).fill({ color: 0xffffff, alpha: 0.3 }); g.rect(0, 1, 8, 2).fill(0xffffff); }),
+      // Burbuja: anillo con relleno tenue y un reflejo
+      ring: mk((g) => {
+        g.circle(16, 16, 14).fill({ color: 0xffffff, alpha: 0.07 });
+        g.circle(16, 16, 14).stroke({ width: 2, color: 0xffffff, alpha: 0.9 });
+        g.circle(11, 10.5, 3).fill({ color: 0xffffff, alpha: 0.6 });
+      }),
+      // Pétalo: elipse con un núcleo más claro (se aplasta y gira para parecer que aletea)
+      petal: mk((g) => { g.ellipse(8, 5, 8, 5).fill({ color: 0xffffff, alpha: 0.55 }); g.ellipse(7, 5, 6, 3.4).fill(0xffffff); }),
+      square: mk((g) => { g.rect(0, 0, 8, 8).fill(0xffffff); }),
     };
   }
 
@@ -515,7 +528,7 @@ export class Scene {
     if (this.song && st.particles && this.fxAllowed) {
       const tx = this.partTextures();
       const type = st.particleType;
-      const main = type === 'stars' ? tx.star : type === 'friction' ? tx.streak : type === 'electric' ? tx.bar : tx.dot;
+      const main = tx[MAIN_TEX[type] ?? 'dot'];
       const glowTex = st.particleGlow ? tx.glow : null;
       const rate = particleRate(st), life = particleLifeFor(st), segs = particleSegments(st), o = this.partOut;
       const span = Math.max(1, this.range.high - this.range.low);
