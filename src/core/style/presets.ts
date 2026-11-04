@@ -1,23 +1,25 @@
 import type { Style } from './schema';
 
-export type PresetGroup = 'basic' | 'elements' | 'sky' | 'retro' | 'elegant' | 'seasons';
+export type PresetGroup = 'basic' | 'learn' | 'elements' | 'sky' | 'retro' | 'elegant' | 'seasons';
 
 export type PresetId =
   // Básicos
-  | 'ocean' | 'classic' | 'paper' | 'mono' | 'slate' | 'pastel'
+  | 'ocean' | 'paper' | 'slate' | 'pastel'
+  // Aprender (con nombres de notas)
+  | 'tutorial' | 'tutorialAbc' | 'tutorialHollow'
   // Elementos
-  | 'fire' | 'ice' | 'lightning' | 'deepwater' | 'forest' | 'lava'
+  | 'fire' | 'ice' | 'lightning' | 'deepwater' | 'forest' | 'lava' | 'campfire' | 'toxic' | 'forge'
   // Cielo y espacio
-  | 'sunset' | 'aurora' | 'midnight' | 'galaxy' | 'nebula' | 'dawn'
+  | 'sunset' | 'aurora' | 'midnight' | 'galaxy' | 'nebula' | 'dawn' | 'comet'
   // Retro y tecnología
-  | 'neon' | 'neonHollow' | 'synthwave' | 'terminal' | 'arcade' | 'blueprint' | 'vaporwave'
+  | 'neon' | 'neonHollow' | 'synthwave' | 'terminal' | 'arcade' | 'blueprint' | 'vaporwave' | 'gameboy' | 'cyberpunk'
   // Elegantes
-  | 'steel' | 'gold' | 'ruby' | 'emerald' | 'sepia'
+  | 'steel' | 'gold' | 'ruby' | 'emerald' | 'sepia' | 'jazz' | 'glass'
   // Estaciones y festivos
-  | 'autumn' | 'sakura' | 'halloween' | 'christmas';
+  | 'autumn' | 'sakura' | 'halloween' | 'christmas' | 'spring' | 'summer' | 'winter' | 'newyear' | 'valentine';
 
 /** Orden en que se muestran las secciones del panel. */
-export const PRESET_GROUPS: PresetGroup[] = ['basic', 'elements', 'sky', 'retro', 'elegant', 'seasons'];
+export const PRESET_GROUPS: PresetGroup[] = ['basic', 'learn', 'elements', 'sky', 'retro', 'elegant', 'seasons'];
 
 // Cada preset parte de los valores por defecto (defaultStyle) y solo indica lo que cambia.
 // Dentro de cada sección se muestran en el orden de esta lista.
@@ -25,17 +27,11 @@ export const PRESETS: { id: PresetId; group: PresetGroup; style: Partial<Style> 
   // ───────────── Básicos: simples, casi sin efectos ─────────────
   // Estilo por defecto
   { id: 'ocean', group: 'basic', style: {} },
-  { id: 'classic', group: 'basic', style: {
-      background: '#000000', noteColor: '#3fb950', pressedColor: '#3fb950', noteRadius: 2, noteGap: 1,
-      velocityOpacity: false, showHitLine: false, glow: false, relief: 0 } },
   // Fondo claro: sin brillo ni partículas (se mezclan en aditivo y en fondo claro no se ven)
   { id: 'paper', group: 'basic', style: {
       background: '#f3efe6', noteLabels: 'solfege', colorMode: 'pitch', noteColor: '#2b6cb0', noteColor2: '#c05621',
       pressedColor: '#2b6cb0', hitLineColor: '#2b6cb0', noteRadius: 6, velocityOpacity: false, glow: false,
       whiteKey: '#ffffff', blackKey: '#23232b', showOctaveLines: true, octaveLineOpacity: 0.12 } },
-  { id: 'mono', group: 'basic', style: {
-      background: '#0a0a0b', noteColor: '#e6e6e6', noteRadius: 3, glow: false, relief: 0.35,
-      hitLineSync: false, hitLineColor: '#ffffff', whiteKey: '#e9e9e9', blackKey: '#111111' } },
   { id: 'slate', group: 'basic', style: {
       background: '#13161c', noteLabels: 'letters', colorMode: 'pitch', noteColor: '#7aa2f7', noteColor2: '#bb9af7', noteRadius: 6,
       glow: false, relief: 0.5, showOctaveLines: true, octaveLineOpacity: 0.14, whiteKey: '#e6e9f0', blackKey: '#171a21' } },
@@ -43,6 +39,23 @@ export const PRESETS: { id: PresetId; group: PresetGroup; style: Partial<Style> 
       background: '#1c1b29', noteLabels: 'solfege', colorMode: 'pitch', noteColor: '#ffb3c7', noteColor2: '#a8d8ff', noteRadius: 14, noteGap: 3,
       velocityOpacity: false, glowStrength: 0.6, glowRadius: 8, relief: 0.3, fallSeconds: 3.5,
       whiteKey: '#f6f1f4', blackKey: '#2b2a3a' } },
+
+  // ───────────── Aprender: con el nombre de cada nota ─────────────
+  // Caída lenta, líneas de octava y colores que separan graves y agudos
+  { id: 'tutorial', group: 'learn', style: {
+      background: '#101522', noteLabels: 'solfege', colorMode: 'pitch', noteColor: '#4cc9f0', noteColor2: '#ffd166',
+      noteRadius: 8, noteGap: 3, velocityOpacity: false, glow: false, relief: 0.3, fallSeconds: 5,
+      showOctaveLines: true, octaveLineOpacity: 0.18, hitFlash: true } },
+  { id: 'tutorialAbc', group: 'learn', style: {
+      background: '#14161d', noteLabels: 'letters', noteColor: '#ffb86b', pressedColor: '#ffb86b', hitLineColor: '#ffb86b',
+      noteRadius: 10, noteGap: 3, velocityOpacity: false, glow: false, relief: 0.4, fallSeconds: 5,
+      showOctaveLines: true, octaveLineOpacity: 0.16, hitLineStyle: 'neon' } },
+  // Notas huecas: el nombre toma el color del contorno
+  { id: 'tutorialHollow', group: 'learn', style: {
+      background: '#0b0d14', noteLabels: 'letters', colorMode: 'pitch', noteColor: '#5eead4', noteColor2: '#f9a8d4',
+      pressedColor: '#ffffff', noteFill: 'outline', outlineWidth: 2, noteRadius: 8, noteGap: 3, velocityOpacity: false,
+      glowStrength: 0.7, glowRadius: 8, relief: 0, fallSeconds: 4.5,
+      showOctaveLines: true, octaveLineOpacity: 0.14, hitLineStyle: 'neon', hitFlash: true } },
 
   // ───────────── Elementos ─────────────
   { id: 'fire', group: 'elements', style: {
@@ -75,6 +88,22 @@ export const PRESETS: { id: PresetId; group: PresetGroup; style: Partial<Style> 
       glowStrength: 1.5, glowRadius: 14, relief: 0.7, fallSeconds: 2.8, whiteKey: '#f0e6dc', blackKey: '#1a0a07',
       hitLineStyle: 'fog', hitLineIntensity: 1.2, hitPulse: true, hitFlash: true,
       particles: true, particleType: 'smoke', particleAmount: 24, particleSize: 7, particleSpeed: 200, particleLife: 2.6 } },
+  { id: 'campfire', group: 'elements', style: {
+      background: '#0e0805', colorMode: 'pitch', noteColor: '#e25822', noteColor2: '#ffc371', noteRadius: 8,
+      pressedColor: '#ffc371', glowStrength: 1.2, relief: 0.6, fallSeconds: 3.4, whiteKey: '#f3e6d3', blackKey: '#1b0e07',
+      hitLineSync: false, hitLineColor: '#ff9a3c', hitLineStyle: 'mist', hitFlash: true,
+      particles: true, particleType: 'embers', particleAmount: 40, particleSize: 3.5, particleSpeed: 150, particleLife: 2.2, particleSpread: 0.8 } },
+  { id: 'toxic', group: 'elements', style: {
+      background: '#06100a', colorMode: 'pitch', noteColor: '#b6ff00', noteColor2: '#00ffa3', noteRadius: 14, noteGap: 3,
+      glowStrength: 1.6, glowRadius: 14, relief: 0.4, fallSeconds: 3.2, whiteKey: '#eaf7d9', blackKey: '#0c1a0a',
+      hitLineStyle: 'fog', hitLineIntensity: 1.2, hitPulse: true,
+      particles: true, particleType: 'bubbles', particleAmount: 30, particleSize: 5, particleSpeed: 140, particleLife: 2.4, particleSpread: 0.9 } },
+  // Fricción: chispas de metal cortas y rápidas, como en una herrería
+  { id: 'forge', group: 'elements', style: {
+      background: '#0a0706', colorMode: 'pitch', noteColor: '#b23a12', noteColor2: '#ffe3a3', noteRadius: 2,
+      glowStrength: 1, glowRadius: 10, relief: 0.9, fallSeconds: 2.8, whiteKey: '#e8e0d8', blackKey: '#17110d',
+      hitLineSync: false, hitLineColor: '#ffb347', hitLineStyle: 'static', hitPulse: true, hitFlash: true,
+      particles: true, particleType: 'friction', particleAmount: 46, particleSize: 3, particleSpeed: 340, particleLife: 0.9, particleSpread: 0.75 } },
 
   // ───────────── Cielo y espacio ─────────────
   { id: 'sunset', group: 'sky', style: {
@@ -106,6 +135,12 @@ export const PRESETS: { id: PresetId; group: PresetGroup; style: Partial<Style> 
       glowStrength: 1, relief: 0.4, fallSeconds: 4.2, whiteKey: '#fff4ee', blackKey: '#241838',
       hitLineStyle: 'mist', hitFlash: true,
       particles: true, particleType: 'dust', particleAmount: 30, particleSize: 3.5, particleSpeed: 150, particleLife: 2.4, particleSpread: 0.8 } },
+  // Estelas ondulantes: cada nota deja una cola que serpentea
+  { id: 'comet', group: 'sky', style: {
+      background: '#050914', colorMode: 'pitch', noteColor: '#4d9bff', noteColor2: '#f4fbff', noteRadius: 10,
+      pressedColor: '#ffffff', glowStrength: 1.3, glowRadius: 12, relief: 0.4, fallSeconds: 3.4, whiteKey: '#eef4fb', blackKey: '#0a1020',
+      hitLineStyle: 'mist', hitFlash: true,
+      particles: true, particleType: 'trails', particleAmount: 60, particleSize: 3.5, particleSpeed: 300, particleLife: 1.6, particleSpread: 1 } },
 
   // ───────────── Retro y tecnología ─────────────
   { id: 'neon', group: 'retro', style: {
@@ -123,7 +158,7 @@ export const PRESETS: { id: PresetId; group: PresetGroup; style: Partial<Style> 
       showOctaveLines: true, octaveLineOpacity: 0.2,
       hitLineSync: false, hitLineColor: '#00e5ff', hitLineStyle: 'neon', hitPulse: true } },
   { id: 'terminal', group: 'retro', style: {
-      background: '#020a04', noteColor: '#33ff66', noteRadius: 0, noteGap: 1, velocityOpacity: false,
+      background: '#020a04', noteColor: '#33ff66', noteFill: 'outline', noteRadius: 0, noteGap: 1, velocityOpacity: false,
       glowStrength: 0.8, glowRadius: 8, relief: 0, keyPress: 2, fallSeconds: 2.6, whiteKey: '#b9f5c8', blackKey: '#04120a',
       hitLineStyle: 'static',
       particles: true, particleType: 'pixels', particleAmount: 20, particleSize: 4, particleSpeed: 200, particleLife: 0.8, particleSpread: 0.6,
@@ -142,6 +177,18 @@ export const PRESETS: { id: PresetId; group: PresetGroup; style: Partial<Style> 
       glowStrength: 1.2, relief: 0.5, fallSeconds: 3.6, whiteKey: '#fff0fb', blackKey: '#240b3b',
       hitLineSync: false, hitLineColor: '#ff71ce', hitLineStyle: 'mist',
       particles: true, particleType: 'bubbles', particleAmount: 18, particleSize: 4, particleSpeed: 180, particleLife: 2.4 } },
+  // Cuatro tonos de verde, sin brillo ni relieve
+  { id: 'gameboy', group: 'retro', style: {
+      background: '#0f380f', noteColor: '#9bbc0f', pressedColor: '#9bbc0f', noteRadius: 0, noteGap: 1, velocityOpacity: false,
+      glow: false, relief: 0, keyPress: 2, fallSeconds: 2.8, whiteKey: '#9bbc0f', blackKey: '#306230',
+      hitLineSync: false, hitLineColor: '#8bac0f', hitLineStyle: 'static', showOctaveLines: true, octaveLineAuto: false, octaveLineColor: '#306230', octaveLineOpacity: 0.5,
+      particles: true, particleType: 'pixels', particleAmount: 24, particleSize: 4, particleSpeed: 200, particleLife: 0.7, particleSpread: 0.7,
+      particleSync: false, particleColor: '#9bbc0f', particleGlow: false } },
+  { id: 'cyberpunk', group: 'retro', style: {
+      background: '#0a0612', colorMode: 'pitch', noteColor: '#ff2a6d', noteColor2: '#fcee0a', noteRadius: 1,
+      pressedColor: '#05d9e8', glowStrength: 1.7, glowRadius: 12, relief: 0.4, fallSeconds: 2.6, whiteKey: '#e8f4f8', blackKey: '#10081c',
+      hitLineSync: false, hitLineColor: '#05d9e8', hitLineStyle: 'electric', hitPulse: true, hitFlash: true, hitFlashSync: false, hitFlashColor: '#05d9e8',
+      particles: true, particleType: 'electric', particleAmount: 50, particleSize: 3, particleSpeed: 280, particleSpread: 0.9 } },
 
   // ───────────── Elegantes ─────────────
   { id: 'steel', group: 'elegant', style: {
@@ -170,6 +217,19 @@ export const PRESETS: { id: PresetId; group: PresetGroup; style: Partial<Style> 
       showOctaveLines: true, octaveLineOpacity: 0.12, hitLineSync: false, hitLineColor: '#e7c79a',
       particles: true, particleType: 'dust', particleAmount: 20, particleSize: 2.5, particleSpeed: 120, particleLife: 2.8, particleSpread: 1,
       particleGlow: false } },
+  // Humo de club
+  { id: 'jazz', group: 'elegant', style: {
+      background: '#0b0f1a', colorMode: 'pitch', noteColor: '#d98b2b', noteColor2: '#f2d49b', noteRadius: 6,
+      glowStrength: 0.9, relief: 0.7, fallSeconds: 3.8, whiteKey: '#f3ead8', blackKey: '#10131d',
+      hitLineSync: false, hitLineColor: '#e0a24a', hitLineStyle: 'fog', hitLineIntensity: 0.9,
+      particles: true, particleType: 'smoke', particleAmount: 22, particleSize: 8, particleSpeed: 150, particleLife: 3, particleSpread: 0.7,
+      particleSync: false, particleColor: '#c9a26a' } },
+  // Notas huecas translúcidas
+  { id: 'glass', group: 'elegant', style: {
+      background: '#0a1018', colorMode: 'pitch', noteColor: '#8fd3ff', noteColor2: '#e6d6ff', noteFill: 'outline', outlineWidth: 2,
+      noteRadius: 12, noteGap: 3, noteOpacity: 0.9, velocityOpacity: false, glowStrength: 0.9, glowRadius: 10, relief: 0, fallSeconds: 3.8,
+      whiteKey: '#eef3f8', blackKey: '#121923', hitLineStyle: 'mist', hitFlash: true,
+      particles: true, particleType: 'dust', particleAmount: 24, particleSize: 3, particleSpeed: 150, particleLife: 2.4, particleSpread: 0.9 } },
 
   // ───────────── Estaciones y festivos ─────────────
   { id: 'autumn', group: 'seasons', style: {
@@ -194,4 +254,30 @@ export const PRESETS: { id: PresetId; group: PresetGroup; style: Partial<Style> 
       hitLineStyle: 'mist',
       particles: true, particleType: 'stars', particleAmount: 34, particleSize: 3, particleSpeed: 120, particleLife: 2, particleSpread: 1,
       particleSync: false, particleColor: '#ffffff' } },
+  { id: 'spring', group: 'seasons', style: {
+      background: '#07120b', colorMode: 'pitch', noteColor: '#5ccf6b', noteColor2: '#ffd1e8', noteRadius: 14, noteGap: 3,
+      glowStrength: 0.8, relief: 0.4, fallSeconds: 3.8, whiteKey: '#f7fbef', blackKey: '#10241a',
+      hitLineSync: false, hitLineColor: '#8fe3a0', hitLineStyle: 'mist',
+      particles: true, particleType: 'petals', particleAmount: 28, particleSize: 4, particleSpeed: 170, particleLife: 2.6, particleSpread: 0.9 } },
+  { id: 'summer', group: 'seasons', style: {
+      background: '#051a22', colorMode: 'pitch', noteColor: '#ffd23f', noteColor2: '#ff6b6b', noteRadius: 10,
+      pressedColor: '#ffd23f', glowStrength: 1.1, relief: 0.5, fallSeconds: 3, whiteKey: '#fff8e6', blackKey: '#0a2a35',
+      hitLineSync: false, hitLineColor: '#2ec4b6', hitLineStyle: 'neon', hitFlash: true,
+      particles: true, particleType: 'trails', particleAmount: 40, particleSize: 3.5, particleSpeed: 260, particleLife: 1.4, particleSpread: 0.9 } },
+  { id: 'winter', group: 'seasons', style: {
+      background: '#0a1220', colorMode: 'pitch', noteColor: '#9ad1ff', noteColor2: '#ffffff', noteRadius: 8,
+      glowStrength: 0.8, relief: 0.6, fallSeconds: 4, whiteKey: '#f2f8ff', blackKey: '#122036',
+      hitLineStyle: 'mist', hitLineIntensity: 0.8,
+      particles: true, particleType: 'dust', particleAmount: 60, particleSize: 4, particleSpeed: 110, particleLife: 3, particleSpread: 1,
+      particleSync: false, particleColor: '#ffffff' } },
+  { id: 'newyear', group: 'seasons', style: {
+      background: '#07070f', colorMode: 'pitch', noteColor: '#ffc93c', noteColor2: '#ff5fa2', noteRadius: 6,
+      pressedColor: '#ffffff', glowStrength: 1.3, relief: 0.5, fallSeconds: 3, whiteKey: '#f6f2e8', blackKey: '#101018',
+      hitLineStyle: 'neon', hitPulse: true, hitFlash: true,
+      particles: true, particleType: 'sparks', particleAmount: 70, particleSize: 3.5, particleSpeed: 380, particleLife: 1.2, particleSpread: 1 } },
+  { id: 'valentine', group: 'seasons', style: {
+      background: '#14060d', colorMode: 'pitch', noteColor: '#e5214f', noteColor2: '#ff9db8', noteRadius: 16, noteGap: 3,
+      glowStrength: 1.1, relief: 0.5, fallSeconds: 3.8, whiteKey: '#fff1f4', blackKey: '#2a0d18',
+      hitLineStyle: 'mist', hitFlash: true,
+      particles: true, particleType: 'petals', particleAmount: 32, particleSize: 4.5, particleSpeed: 170, particleLife: 2.6, particleSpread: 0.9 } },
 ];

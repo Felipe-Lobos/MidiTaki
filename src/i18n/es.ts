@@ -93,15 +93,19 @@ export const es = {
     invalidJson: 'El archivo no es un JSON válido.', importFailed: 'No se pudo importar el preset.',
   },
   presetNames: {
-    ocean: 'Océano', classic: 'Clásico', paper: 'Papel', mono: 'Monocromo', slate: 'Pizarra', pastel: 'Pastel',
+    ocean: 'Océano', paper: 'Papel', slate: 'Pizarra', pastel: 'Pastel',
+    tutorial: 'Tutorial Do Re Mi', tutorialAbc: 'Tutorial C D E', tutorialHollow: 'Tutorial hueco',
     fire: 'Fuego', ice: 'Hielo', lightning: 'Rayo', deepwater: 'Agua profunda', forest: 'Bosque', lava: 'Lava',
-    sunset: 'Atardecer', aurora: 'Aurora', midnight: 'Medianoche', galaxy: 'Galaxia', nebula: 'Nebulosa', dawn: 'Amanecer',
-    neon: 'Neón', neonHollow: 'Neón hueco', synthwave: 'Synthwave', terminal: 'Terminal', arcade: 'Arcade', blueprint: 'Plano técnico', vaporwave: 'Vaporwave',
-    steel: 'Acero', gold: 'Oro', ruby: 'Rubí', emerald: 'Esmeralda', sepia: 'Sepia',
+    campfire: 'Fogata', toxic: 'Tóxico', forge: 'Forja',
+    sunset: 'Atardecer', aurora: 'Aurora', midnight: 'Medianoche', galaxy: 'Galaxia', nebula: 'Nebulosa', dawn: 'Amanecer', comet: 'Cometa',
+    neon: 'Neón', neonHollow: 'Neón hueco', synthwave: 'Synthwave', terminal: 'Terminal hueco', arcade: 'Arcade', blueprint: 'Plano técnico', vaporwave: 'Vaporwave',
+    gameboy: 'Consola verde', cyberpunk: 'Cyberpunk',
+    steel: 'Acero', gold: 'Oro', ruby: 'Rubí', emerald: 'Esmeralda', sepia: 'Sepia', jazz: 'Club de jazz', glass: 'Cristal',
     autumn: 'Otoño', sakura: 'Sakura', halloween: 'Halloween', christmas: 'Navidad',
+    spring: 'Primavera', summer: 'Verano', winter: 'Invierno', newyear: 'Año nuevo', valentine: 'San Valentín',
   },
   presetGroups: {
-    basic: 'Básicos', elements: 'Elementos', sky: 'Cielo y espacio', retro: 'Retro y tecnología', elegant: 'Elegantes', seasons: 'Estaciones y festivos',
+    basic: 'Básicos', learn: 'Aprender', elements: 'Elementos', sky: 'Cielo y espacio', retro: 'Retro y tecnología', elegant: 'Elegantes', seasons: 'Estaciones y festivos',
   },
 
   export: {
