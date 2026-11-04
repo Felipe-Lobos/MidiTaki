@@ -340,8 +340,8 @@ export class Scene {
   /**
    * Nombre de la nota, centrado y pegado a su base (por dentro). Devuelve el siguiente índice libre de la pool.
    * El tamaño es proporcional al ancho de cada nota (el mayor que cabe, por el ajuste): en las teclas blancas
-   * el texto es mayor que en las negras. Siempre se dibuja, salvo que la nota sea demasiado corta para contenerlo.
-   * En notas muy angostas puede quedar diminuto e ilegible.
+   * el texto es mayor que en las negras. Siempre se dibuja.
+   * En notas muy angostas puede quedar diminuto e ilegible, y en las cortas queda centrado y puede sobresalir.
    */
   private placeLabel(i: number, midi: number, x: number, ny: number, nw: number, nh: number, tint: number, alpha: number, res: number): number {
     const st = this.style;
@@ -353,12 +353,12 @@ export class Scene {
     // Borde que ocupa la base de la nota: grosor del contorno o franja inferior del relieve
     const edge = hollow ? st.outlineWidth : (st.relief > 0 && this.inset >= 3 ? Math.max(1, Math.round(this.inset * 0.4 * st.relief)) : 0);
     const bottomPad = edge + Math.max(2, fs * 0.3);
-    //Condicional por altura (duracion) de la nota
-    //if (nh < fs * 0.7 + bottomPad + edge + 2) return i;
     const sp = this.getLabel(i);
     sp.texture = this.labelTexture(name, Math.max(1, Math.round(fs * res)));
     sp.scale.set(1 / res);
-    sp.position.set(Math.round((x + nw / 2) * res) / res, ny + nh - bottomPad - fs * 0.35);
+    // Pegada a la base; en notas cortas (planas) el texto no cabría arriba, así que baja hasta quedar centrado en la nota (puede sobresalir)
+    const baseY = ny + nh - bottomPad - fs * 0.35;
+    sp.position.set(Math.round((x + nw / 2) * res) / res, Math.max(baseY, ny + nh / 2));
     // Nota llena: tinta oscura o clara según el color; nota hueca: el color de la nota
     sp.tint = hollow ? tint : (contrastColor(tint) === 0x000000 ? 0x0c0d13 : 0xffffff);
     sp.alpha = st.noteLabelOpacity * alpha;
