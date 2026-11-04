@@ -7,7 +7,7 @@ import type { ParticleType, Style } from '../core/style/schema';
 import { HAZE_W, LINE_CFG, jaggedLine, makeBandCanvas, makeHazeCanvas } from './lineFx';
 import { computeParticle, particleLifeFor, particleRate, particleSegments, type PState } from './particles';
 import { contrastColor, hexToNum, lerpColor, noteTint } from '../core/colors/colorMapping';
-import { noteLabel } from '../core/noteNames.ts';
+import { noteLabel } from '../core/noteNames';
 
 export type HitRegion = 'notes' | 'keyboard' | 'scene';
 
@@ -25,7 +25,6 @@ interface KeyView { rect: KeyRect; g: Graphics; pressTint: number | null }
 const LABEL_FAMILY = '"Space Grotesk", Inter, system-ui, sans-serif';
 const LABEL_FONT_SPEC = '700 16px "Space Grotesk"';
 const LABEL_SAMPLE = 'DoReMiFaSolLaSi#';
-const LABEL_MIN_PX = 7; // si el texto saldría más pequeño que esto (nota muy angosta), no se dibuja
 
 const gray = (v: number) => Math.round(255 * v) * 0x010101;
 
@@ -65,6 +64,7 @@ export class Scene {
   private labelLayer = new Container(); // nombres de las notas: sobre las notas (sin brillo) y bajo el teclado
   private labelPool: Sprite[] = [];
   private labelTexCache = new Map<string, Texture>();
+  private labelEm = new Map<string, number>(); // ancho de cada nombre en em (se mide una vez)
   private labelFontOk = false;
   private labelFontPending = false;
   private pool: NineSliceSprite[] = [];
@@ -315,6 +315,18 @@ export class Scene {
     return tex;
   }
 
+  /** Ancho del nombre en em (medido con la tipografía ya cargada). */
+  private emWidth(name: string): number {
+    let em = this.labelEm.get(name);
+    if (em === undefined) {
+      const ctx = document.createElement('canvas').getContext('2d')!;
+      ctx.font = '700 100px ' + LABEL_FAMILY;
+      em = ctx.measureText(name).width / 100;
+      this.labelEm.set(name, em);
+    }
+    return em;
+  }
+
   private getLabel(i: number): Sprite {
     if (!this.labelPool[i]) {
       const sp = new Sprite();
@@ -327,20 +339,22 @@ export class Scene {
 
   /**
    * Nombre de la nota, centrado y pegado a su base (por dentro). Devuelve el siguiente índice libre de la pool.
-   * Si la nota es muy angosta o muy corta para que el texto quepa, no se dibuja.
+   * El tamaño es proporcional al ancho de cada nota (el mayor que cabe, por el ajuste): en las teclas blancas
+   * el texto es mayor que en las negras. Siempre se dibuja, salvo que la nota sea demasiado corta para contenerlo.
+   * En notas muy angostas puede quedar diminuto e ilegible.
    */
   private placeLabel(i: number, midi: number, x: number, ny: number, nw: number, nh: number, tint: number, alpha: number, res: number): number {
     const st = this.style;
     const name = noteLabel(midi, st.noteLabels === 'solfege' ? 'solfege' : 'letters');
-    const pad = Math.max(2, nw * 0.08);
-    const fit = (nw - 2 * pad) / (name.length * 0.62); // ancho aproximado de un carácter: 0,62 em
+    const pad = Math.max(1, nw * 0.08);
+    const fit = (nw - 2 * pad) / this.emWidth(name);
     const fs = Math.min(fit, nw * 0.6) * st.noteLabelSize;
-    if (fs < LABEL_MIN_PX) return i;
     const hollow = st.noteFill === 'outline';
     // Borde que ocupa la base de la nota: grosor del contorno o franja inferior del relieve
     const edge = hollow ? st.outlineWidth : (st.relief > 0 && this.inset >= 3 ? Math.max(1, Math.round(this.inset * 0.4 * st.relief)) : 0);
     const bottomPad = edge + Math.max(2, fs * 0.3);
-    if (nh < fs * 0.7 + bottomPad + edge + 2) return i;
+    //Condicional por altura (duracion) de la nota
+    //if (nh < fs * 0.7 + bottomPad + edge + 2) return i;
     const sp = this.getLabel(i);
     sp.texture = this.labelTexture(name, Math.max(1, Math.round(fs * res)));
     sp.scale.set(1 / res);

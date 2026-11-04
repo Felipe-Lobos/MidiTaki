@@ -19,7 +19,7 @@ export interface Style {
   outlineWidth: number;         // px, grosor del borde en modo hueco
   velocityOpacity: boolean;     // la fuerza (velocity) afecta la opacidad
   noteLabels: NoteLabelMode;    // nombre de la nota escrito en su base
-  noteLabelSize: number;        // 1 = el mayor tamaño que cabe en la nota; menos = más pequeño
+  noteLabelSize: number;        // 1 = el mayor tamaño que cabe en el ancho de cada nota; menos = más pequeño
   noteLabelOpacity: number;
   // Teclado
   whiteKey: string;
