@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://felipe-lobos.github.io/MidiTaki/"><strong>▶ Abrir la aplicación</strong></a>
+  <a href="https://felipe-lobos.github.io/miditaki/"><strong>▶ Abrir la aplicación</strong></a>
   &nbsp;·&nbsp;
   <a href="#english">English</a>
 </p>
@@ -36,7 +36,7 @@ MidiTaki carga un archivo MIDI de piano, dibuja las notas cayendo sobre un tecla
 
 ## Cómo se usa
 
-1. Abre [la aplicación](https://felipe-lobos.github.io/MidiTaki/) y arrastra un archivo `.mid` o `.midi` de piano (o pulsa **Cargar MIDI**).
+1. Abre [la aplicación](https://felipe-lobos.github.io/miditaki/) y arrastra un archivo `.mid` o `.midi` de piano (o pulsa **Cargar MIDI**).
 2. Pulsa **Play** y ajusta colores, efectos y partículas en el panel lateral.
 3. Pulsa **Exportar**, elige formato, resolución y si quieres audio, y espera a que termine. Mantén la pestaña visible mientras se exporta.
 
@@ -54,7 +54,7 @@ MidiTaki carga un archivo MIDI de piano, dibuja las notas cayendo sobre un tecla
 Requiere [Node.js](https://nodejs.org/) (versión LTS reciente) y npm.
 
 ```bash
-git clone https://github.com/Felipe-Lobos/MidiTaki.git
+git clone https://github.com/Felipe-Lobos/miditaki.git
 cd MidiTaki
 npm install
 
@@ -122,7 +122,7 @@ Creado por [Felipe Lobos](https://github.com/Felipe-Lobos).
 
 **MidiTaki** turns a piano MIDI file into a falling-notes video. It draws the notes falling onto a keyboard, plays them with real piano samples, and exports an MP4. Everything runs in your browser: no accounts, no servers, and your files are never uploaded. *Taki* (滝) means "waterfall" in Japanese.
 
-**[▶ Open the app](https://felipe-lobos.github.io/MidiTaki/)**
+**[▶ Open the app](https://felipe-lobos.github.io/miditaki/)**
 
 ### Features
 
@@ -151,7 +151,7 @@ A modern browser with WebGL and Web Audio. **Video export requires WebCodecs**, 
 ### Development
 
 ```bash
-git clone https://github.com/Felipe-Lobos/MidiTaki.git
+git clone https://github.com/Felipe-Lobos/miditaki.git
 cd MidiTaki
 npm install
 node scripts/copy-samples.mjs   # copies the piano samples to public/samples/piano/
