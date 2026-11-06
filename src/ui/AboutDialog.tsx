@@ -16,7 +16,7 @@ export function AboutDialog({ open, onClose }: { open: boolean; onClose: () => v
         {(APP.repoUrl || APP.license) && (
           <p>
             <b>{t.about.openSource}</b>
-            {APP.license && <> · {t.about.license(APP.license)}</>}
+            {APP.license && <> · <a href={APP.licenseUrl} target="_blank" rel="noopener noreferrer">{t.about.license(APP.license)}</a></>}
             {APP.repoUrl && <> · <a href={APP.repoUrl} target="_blank" rel="noopener noreferrer">{t.about.repo}</a></>}
           </p>
         )}

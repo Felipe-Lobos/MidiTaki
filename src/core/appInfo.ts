@@ -3,7 +3,8 @@ export const APP = {
   repoUrl: 'https://github.com/Felipe-Lobos/MidiTaki',
   author: 'Felipe Lobos',
   authorUrl: 'https://github.com/Felipe-Lobos',
-  license: '',  // TODO: licencia del código, p. ej. 'MIT' (si queda vacío, no se muestra)
+  license: 'AGPL-3.0-or-later',  // licencia del código (si queda vacío, no se muestra)
+  licenseUrl: 'https://github.com/Felipe-Lobos/MidiTaki/blob/main/LICENSE',
 };
 
 export const PIANO_CREDIT = {

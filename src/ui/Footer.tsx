@@ -8,7 +8,11 @@ export function Footer() {
       <div className="f-group">
         <strong>{APP.name}</strong>
         <span>{t.footer.openSource}</span>
-        {APP.license && <span>{t.about.license(APP.license)}</span>}
+        {APP.license && (
+          <span>
+            <a href={APP.licenseUrl} target="_blank" rel="noopener noreferrer">{t.about.license(APP.license)}</a>
+          </span>
+        )}
       </div>
       <span className="f-keys">{t.drop.keys}</span>
       <div className="f-group">

@@ -101,10 +101,14 @@ Lo cuento por transparencia, y porque tiene consecuencias prácticas:
   > Piano: Salamander Grand Piano V3 de Alexander Holm (CC BY 3.0). Hecho con MidiTaki.
 - Resumen de licencias de terceros: [`THIRD_PARTY_NOTICES.txt`](public/THIRD_PARTY_NOTICES.txt). Texto completo de cada licencia: `THIRD_PARTY_LICENSES.txt` (se genera con `npm run licencias`).
 
-## Licencia
 
-<!-- Reemplaza este párrafo cuando elijas una licencia y añadas el archivo LICENSE -->
-La licencia del código todavía no está definida. Hasta entonces, consulta con el autor antes de reutilizarlo.
+## Licencia
+El código de MidiTaki se distribuye bajo la licencia GNU AGPL v3 o posterior (ver `LICENSE`).
+Puedes usarlo, estudiarlo y modificarlo; si distribuyes una versión modificada, o la ofreces como servicio por red,
+debes publicar su código fuente bajo la misma licencia.
+Los videos que generes y tus archivos MIDI son tuyos: la licencia cubre el código, no tu contenido.
+Las librerías y tipografías de terceros mantienen sus propias licencias (ver `public/THIRD_PARTY_NOTICES.txt`),
+y las muestras de piano son «Salamander Grand Piano V3», de Alexander Holm, bajo CC BY 3.0.
 
 ## Autor
 
